@@ -33,14 +33,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email atau password salah' }, { status: 401 });
     }
 
-    const token = signToken({ id: user.id, role: user.role });
+    const token = signToken({ 
+      id: user.id, 
+      name: user.name,   
+      email: user.email, 
+      role: user.role 
+    });
 
     const cookieStore = await cookies();
     cookieStore.set('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 5,
+      maxAge: 60 * 60 * 8,
       path: '/',
     });
 
