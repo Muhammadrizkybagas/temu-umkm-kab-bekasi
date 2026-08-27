@@ -13,7 +13,7 @@ export default function BannerCarousel({ banners }: { banners: any[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Auto slide
+  // auto slide
   useEffect(() => {
     if (isPaused || banners.length <= 1) return;
 
@@ -41,7 +41,7 @@ export default function BannerCarousel({ banners }: { banners: any[] }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="relative w-full aspect-3/1 rounded-3xl overflow-hidden shadow-lg border border-gray-100 group bg-gray-900">
           
-          {/* Slide track */}
+          
           <div 
             className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -51,17 +51,17 @@ export default function BannerCarousel({ banners }: { banners: any[] }) {
                 key={banner.id || index} 
                 className="relative min-w-full h-full flex flex-col justify-end bg-gray-950"
               >
-                {/* Gambar banner */}
+                
                 <img 
                   src={banner.imageUrl} 
                   alt={banner.title} 
                   className="absolute inset-0 w-full h-full object-cover opacity-90"
                 />
 
-                {/* Gradient teks */}
+
                 <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
 
-                {/* Konten info */}
+                {/* info konten */}
                 <div className="relative z-10 p-5 sm:p-8 md:p-10 space-y-2 text-white max-w-4xl pointer-events-none">
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight drop-shadow-md">
                     {banner.title}
@@ -94,7 +94,7 @@ export default function BannerCarousel({ banners }: { banners: any[] }) {
             ))}
           </div>
 
-          {/* Tombol navigasi */}
+
           {banners.length > 1 && (
             <>
               <button 
@@ -112,7 +112,7 @@ export default function BannerCarousel({ banners }: { banners: any[] }) {
                 <Icon path={mdiChevronRight} size={1} />
               </button>
 
-              {/* Indikator dot */}
+\
               <div className="absolute right-6 bottom-6 z-20 flex items-center gap-2">
                 {banners.map((_, idx) => (
                   <button
