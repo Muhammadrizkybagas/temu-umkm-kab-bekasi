@@ -17,6 +17,7 @@ interface UMKM {
   status: string | number;
   isUpgraded?: boolean | number;
   isNaikKelas?: boolean | number;
+  logo?: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -346,7 +347,16 @@ export default function AdminUMKMPage() {
                     return (
                       <tr key={item.id} className="border-b border-gray-50 hover:bg-surface/50">
                         <td className="p-4 text-center font-medium text-gray-500">{rowNumber}</td>
-                        <td className="p-4 font-medium text-textMain">{item.name}</td>
+                        <td className="p-4 font-medium text-textMain">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={item.logo || "/default-logo.png"}
+                              alt={item.name}
+                              className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-xs shrink-0 bg-white"
+                            />
+                            <span className="font-medium text-textMain">{item.name}</span>
+                          </div>
+                        </td>
                         <td className="p-4 text-gray-600">{item.ownerName}</td>
                         <td className="p-4 text-gray-600">{item.district}</td>
                         <td className="p-4 text-gray-600">{item.phone}</td>

@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 
 
 export async function getUmkms() {
-  return await db.query.umkm.findMany({
+  const result = await db.query.umkm.findMany({
     orderBy: (t, { desc }) => [desc(t.id)], 
     with: {
       partners: {
@@ -16,6 +16,11 @@ export async function getUmkms() {
       },
     },
   });
+
+  return result.map((item: any) => ({
+    ...item,
+    logo: item.logo || item.logoUrl || item.imageUrl || null,
+  }));
 }
 
 // get detail

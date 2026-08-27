@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStorageProvider } from '@/lib/storage';
-import { mkdir, writeFile } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,35 +23,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `umkm-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
 
-    let fileUrl = '';
+    
+    const blob = await put(fileName, file, {
+      access: 'public',
+    });
 
-    try {
-      const storage = getStorageProvider();
-      if (storage) {
-        if (typeof storage.upload === 'function') {
-          fileUrl = await storage.upload(buffer, file.name, file.type);
-        }
-      }
-    } catch (storageErr: any) {
-      console.error('Storage Provider Error Stack:', storageErr?.stack || storageErr);
-    }
-
-    if (!fileUrl) {
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      await mkdir(uploadDir, { recursive: true });
-
-      const fileExt = file.name.split('.').pop() || 'jpg';
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-      const filePath = path.join(uploadDir, fileName);
-
-      await writeFile(filePath, buffer);
-      fileUrl = `/uploads/${fileName}`;
-    }
-
-    return NextResponse.json({ url: fileUrl }, { status: 201 });
+    return NextResponse.json({ url: blob.url }, { status: 201 });
 
   } catch (error: any) {
     console.error('=== DETAILED UPLOAD ERROR ===');
