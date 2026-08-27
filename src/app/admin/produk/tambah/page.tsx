@@ -1,0 +1,285 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import Icon from "@mdi/react";
+import { mdiArrowLeft, mdiUpload, mdiLoading } from "@mdi/js";
+import { uploadFileAction } from "@/app/actions/upload";
+import { createProduct, getProductFormOptions } from "../actions";
+
+interface DropdownItem {
+  id: string;
+  name: string;
+}
+
+export default function TambahProdukPage() {
+  const router = useRouter();
+  const [umkms, setUmkms] = useState<DropdownItem[]>([]);
+  const [categories, setCategories] = useState<DropdownItem[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [umkmId, setUmkmId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  
+  useEffect(() => {
+    async function loadOptions() {
+      try {
+        const { umkmList, categoryList } = await getProductFormOptions();
+        setUmkms(umkmList);
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Gagal memuat opsi form:", error);
+      } finally {
+        setLoadingOptions(false);
+      }
+    }
+
+    loadOptions();
+  }, []);
+
+  // upload gambar
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await uploadFileAction(formData);
+
+      if (res.error) {
+        throw new Error(res.error);
+      }
+
+      if (res.url) {
+        setImageUrl(res.url);
+      }
+    } catch (err: any) {
+      console.error("Upload Error:", err);
+      Swal.fire("Error!", err.message || "Gagal mengunggah foto produk.", "error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // submit form
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!umkmId || !categoryId) {
+      Swal.fire("Peringatan", "Pilih UMKM dan Kategori terlebih dahulu!", "warning");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const result = await createProduct({
+        name,
+        price: Number(price),
+        description,
+        imageUrl,
+        umkmId,
+        categoryId,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || "Gagal menambahkan produk");
+      }
+
+      await Swal.fire({
+        title: "Berhasil!",
+        text: "Produk baru berhasil disimpan.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      router.push("/admin/produk");
+    } catch (error: any) {
+      Swal.fire("Gagal!", error.message || "Terjadi kesalahan saat menyimpan produk.", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto pb-12">
+      <div className="flex items-center gap-3 mb-6">
+        <button
+          onClick={() => router.back()}
+          className="w-10 h-10 rounded-2xl bg-white border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
+        >
+          <Icon path={mdiArrowLeft} size={0.9} />
+        </button>
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Tambah Produk Baru</h1>
+          <p className="text-sm font-medium text-slate-500">Tambahkan informasi produk baru untuk UMKM</p>
+        </div>
+      </div>
+
+      {/* card main*/}
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
+          {/* foto */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Foto Produk</label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0 shadow-xs">
+                {imageUrl ? (
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[11px] font-bold text-slate-400 text-center px-1">Belum ada foto</span>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-extrabold cursor-pointer transition-all border border-slate-200/60 shadow-xs">
+                  {uploading ? (
+                    <>
+                      <Icon path={mdiLoading} size={0.7} className="animate-spin text-primary" />
+                      Mengunggah...
+                    </>
+                  ) : (
+                    <>
+                      <Icon path={mdiUpload} size={0.7} />
+                      Unggah Foto
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-[11px] font-semibold text-slate-400">Format JPG, PNG, WEBP max 2MB</p>
+              </div>
+            </div>
+          </div>
+
+          {/* nama produk */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+              Nama Produk <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Masukkan nama produk"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+            />
+          </div>
+
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                Pemilik UMKM <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={umkmId}
+                onChange={(e) => setUmkmId(e.target.value)}
+                disabled={loadingOptions}
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer"
+              >
+                <option value="">
+                  {loadingOptions ? "-- Memuat UMKM... --" : "-- Pilih UMKM --"}
+                </option>
+                {umkms.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* pilih kategori */}
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                Kategori Produk <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                disabled={loadingOptions}
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer"
+              >
+                <option value="">
+                  {loadingOptions ? "-- Memuat Kategori... --" : "-- Pilih Kategori --"}
+                </option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Harga */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+              Harga (Rp) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              required
+              placeholder="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+            />
+          </div>
+
+          {/* Deskripsi */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Deskripsi Produk</label>
+            <textarea
+              rows={4}
+              placeholder="Tuliskan deskripsi ringkas mengenai produk..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+            ></textarea>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 rounded-2xl font-extrabold text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || uploading}
+              className="px-6 py-3 rounded-2xl font-extrabold text-xs bg-primary hover:bg-[#2d7e79] text-white shadow-md shadow-primary/20 transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {submitting ? "Menyimpan..." : "Simpan Produk"}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  );
+}
