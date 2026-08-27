@@ -15,7 +15,7 @@ export default function Pagination({
   pageSize = 10,
   onPageChange,
 }: PaginationProps) {
-  // Hanya tampilkan jika total data lebih dari pageSize (10)
+  
   if (totalItems <= pageSize) return null;
 
   const startItem = (currentPage - 1) * pageSize + 1;
@@ -23,16 +23,16 @@ export default function Pagination({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500">
-      {/* Keterangan Jumlah Data */}
+
       <div>
         Menampilkan <span className="font-semibold text-gray-800">{startItem}</span> -{" "}
         <span className="font-semibold text-gray-800">{endItem}</span> dari{" "}
         <span className="font-semibold text-gray-800">{totalItems}</span> data
       </div>
 
-      {/* Tombol Navigasi Halaman */}
+
       <div className="flex items-center gap-1">
-        {/* Tombol Sebelumnya */}
+        
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -41,7 +41,7 @@ export default function Pagination({
           Sebelumnya
         </button>
 
-        {/* Angka Halaman */}
+
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <button
             key={page}

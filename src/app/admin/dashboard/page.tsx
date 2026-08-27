@@ -87,13 +87,13 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-blue-500/5 to-teal-500/5 rounded-full blur-3xl pointer-events-none -mr-10 -mt-10"></div>
         <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 text-blue-600 font-bold text-[10px] tracking-wider uppercase mb-2 border border-blue-100/60 shadow-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 text-teal-600 font-bold text-[10px] tracking-wider uppercase mb-2 border border-blue-100/60 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse"></span>
             Data Science & Analytics
           </span>
           <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Dashboard Katalog UMKM</h1>
         </div>
-        <Link href="/admin/umkm" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white px-5 py-3 rounded-2xl font-bold text-xs tracking-wide transition-all shadow-md shadow-blue-600/20 relative z-10">
+        <Link href="/admin/umkm" className="inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white px-6 py-3 rounded-full font-medium text-[13px] tracking-wide transition-all shadow-md shadow-blue-600/20 relative z-10">
           <Icon path={mdiPlus} size={0.8} /> Entri Data UMKM
         </Link>
       </div>

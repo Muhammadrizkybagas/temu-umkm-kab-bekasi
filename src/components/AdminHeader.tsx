@@ -111,8 +111,8 @@ export default function AdminHeader({ user }: { user?: UserProps }) {
 
   return (
     <>
-      <header className="w-full bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-xs sticky top-0 z-30">
-        <span className="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full">
+      <header className="w-full lg:w-[calc(100%-16rem)] bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-xs fixed top-0 right-0 z-30">
+        <span className="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-teal-600 rounded-full">
           {roleConfig.label}
         </span>
 

@@ -112,14 +112,14 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
       </div>
 
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {partnerCounts.map((partner) => (
           <div
             key={partner.id}
             onClick={() =>
               setSelectedPartnerFilter((prev) => (prev === partner.id ? "ALL" : partner.id))
             }
-            className={`p-3.5 rounded-xl border bg-white transition-all cursor-pointer shadow-2xs ${
+            className={`w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] lg:w-[calc(16.666%-10px)] p-3.5 rounded-xl border bg-white transition-all cursor-pointer shadow-2xs ${
               selectedPartnerFilter === partner.id
                 ? "border-primary ring-2 ring-blue-100 bg-blue-50/20"
                 : "border-gray-100 hover:border-gray-200"

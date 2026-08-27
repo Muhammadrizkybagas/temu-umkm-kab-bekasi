@@ -13,13 +13,16 @@ const DEFAULT_PARTNERS = [
   { name: "Indogrosir", logoUrl: "/partners/indogrosir.svg" },
   { name: "Papaya Fresh Gallery", logoUrl: "/partners/papaya.svg" },
   { name: "Hypermart", logoUrl: "/partners/hypermart.svg" },
+  { name: "AEON", logoUrl: "/partners/aeon.svg" },
+  { name: "Living World", logoUrl: "/partners/living-world.svg" },
+  { name: "IKEA", logoUrl: "/partners/ikea.svg" },
 ];
 
 export async function getPartners() {
   const existing = await db.select().from(partners);
 
   
-  if (existing.length !== 6) {
+  if (existing.length !== 9) {
     await db.delete(partners);
     await db.insert(partners).values(DEFAULT_PARTNERS);
     return await db.select().from(partners);
@@ -28,10 +31,8 @@ export async function getPartners() {
   return existing;
 }
 
-
 export async function getBermitraUmkms() {
   try {
-    
     const rows = await db
       .select({
         umkm: umkm,
@@ -42,7 +43,6 @@ export async function getBermitraUmkms() {
       .leftJoin(partners, eq(umkmPartners.partnerId, partners.id))
       .where(eq(umkm.status, "Bermitra"));
 
-      
     const umkmMap = new Map<string, any>();
 
     for (const row of rows) {
@@ -66,7 +66,6 @@ export async function getBermitraUmkms() {
     return [];
   }
 }
-
 
 export async function updateUmkmPartnersAction(
   umkmId: string,

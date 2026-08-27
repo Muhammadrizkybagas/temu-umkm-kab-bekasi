@@ -202,7 +202,7 @@ export default function MessageManagementClient({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-xs font-extrabold text-slate-900 truncate">{msg.name}</h4>
+                      <h4 className="text-[13px] font-bold text-slate-900 truncate">{msg.name}</h4>
                       <span className="text-[10px] font-bold text-slate-400">
                         {msg.createdAt
                           ? new Date(msg.createdAt).toLocaleDateString("id-ID", {
@@ -232,7 +232,7 @@ export default function MessageManagementClient({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleReplyWhatsApp}
-                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2 rounded-2xl text-xs transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-2xl text-xs transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     <Icon path={mdiWhatsapp} size={0.75} />
                     Balas WhatsApp
@@ -248,7 +248,7 @@ export default function MessageManagementClient({
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-lg font-black text-slate-900 tracking-tight">{selectedMessage.subject}</h3>
+                <h3 className="text-lg font-medium text-slate-900 tracking-tight">{selectedMessage.subject}</h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 pb-1 bg-slate-50/60 p-4 rounded-2xl border border-slate-100">
                   <div className="flex items-center gap-2 text-xs font-medium text-slate-600">

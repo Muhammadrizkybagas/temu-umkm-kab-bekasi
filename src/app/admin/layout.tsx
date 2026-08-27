@@ -5,7 +5,6 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { verifyToken } from "@/lib/auth";
 import AdminSidebar from "./AdminSidebar";
-import AdminHeader from "@/components/AdminHeader";
 
 export default async function AdminLayout({
   children,
@@ -40,11 +39,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <AdminSidebar userRole={currentUser.role}>
-      <div className="flex flex-col min-h-screen -m-6 sm:-m-8">
-        <AdminHeader user={currentUser} />
-        <main className="flex-1 p-6 sm:p-8">{children}</main>
-      </div>
+    <AdminSidebar user={currentUser} userRole={currentUser.role}>
+      <main>{children}</main>
     </AdminSidebar>
   );
 }
