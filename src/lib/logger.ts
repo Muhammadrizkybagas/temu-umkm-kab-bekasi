@@ -24,12 +24,11 @@ export async function logActivity(
       } | null;
 
       if (decoded) {
-        userName = decoded.name || userName;
-        userEmail = decoded.email || userEmail;
-        
+        if (decoded.name) userName = decoded.name;
+        if (decoded.email) userEmail = decoded.email;
         
         if (decoded.role) {
-          userName = `${decoded.name || "User"} (${decoded.role})`;
+          userName = `${userName} (${decoded.role})`;
         }
       }
     }

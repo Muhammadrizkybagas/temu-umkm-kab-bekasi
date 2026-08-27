@@ -20,7 +20,7 @@ export async function clearActivityLogs() {
   await db.delete(activityLogs);
 
   
-  await logActivity("DELETE", "Membersihkan seluruh riwayat log aktivitas");
+  await logActivity("DELETE", "Membersihkan seluruh riwayat log aktivitas admin");
 
   revalidatePath("/admin/activity-logs");
   return { success: true };
