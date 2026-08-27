@@ -20,8 +20,17 @@ export async function createNews(formData: FormData) {
     const title = formData.get("title") as string;
     const content = formData.get("content") as string;
     const editor = (formData.get("editor") as string) || "Admin";
-    const thumbnailUrl = (formData.get("thumbnailUrl") as string) || null;
     const status = (formData.get("status") as string) || "Draft";
+    
+    const thumbnailFile = formData.get("thumbnail") as File | null;
+    let thumbnailUrl: string | null = null;
+
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      const bytes = await thumbnailFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = buffer.toString("base64");
+      thumbnailUrl = `data:${thumbnailFile.type};base64,${base64}`;
+    }
 
     if (!title || !content) {
       return { success: false, error: "Judul dan konten wajib diisi!" };
