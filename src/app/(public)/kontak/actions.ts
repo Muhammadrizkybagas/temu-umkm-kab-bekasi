@@ -26,7 +26,7 @@ export async function submitContactMessage(formData: FormData) {
     });
 
     // Catat log aktivitas
-    await logActivity("CREATE", `Pesan masuk baru dari: ${name} (${phone})`, name, phone);
+    await logActivity("CREATE", `Pesan masuk baru dari: ${name} (${phone})`);
 
     revalidatePath("/admin/messages");
     return { success: true, message: "Pesan Anda berhasil dikirim!" };
