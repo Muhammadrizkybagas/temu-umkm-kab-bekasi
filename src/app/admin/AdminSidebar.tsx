@@ -189,7 +189,7 @@ export default function AdminSidebar({ children, user, userRole: initialRole = "
   const filteredMenu = menuItems.filter((item) => item.roles.includes(currentRole));
 
   return (
-    <div className="min-h-screen w-full bg-surface flex flex-col lg:flex-row overflow-x-hidden">
+      <div className="h-screen w-full bg-surface flex flex-col lg:flex-row overflow-hidden">
       
       
       {sidebarOpen && (
@@ -266,9 +266,9 @@ export default function AdminSidebar({ children, user, userRole: initialRole = "
       </aside>
 
       {/* main konten */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
-        <header className="h-16 bg-white border-b border-slate-100 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-          {/* kiri header */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64 h-screen overflow-y-auto">
+        <header className="h-16 bg-white border-b border-slate-100 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs shrink-0">
+          {/* kiri */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -282,7 +282,7 @@ export default function AdminSidebar({ children, user, userRole: initialRole = "
             </span>
           </div>
 
-          {/* kanan header */}
+          {/* kanan */}
           <button
             onClick={handleOpenDrawer}
             className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all cursor-pointer"

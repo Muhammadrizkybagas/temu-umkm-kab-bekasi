@@ -196,10 +196,10 @@ export default function AdminKategoriPage() {
         {/*add kategori */}
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-fit sticky top-6 group/card hover:shadow-md transition-all duration-300">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-teal-light/20 text-primary flex items-center justify-center border border-teal-light/40">
+            <div className="w-9 h-9 rounded-full bg-teal-light/20 text-primary flex items-center justify-center border border-teal-light/40">
               <Icon path={mdiPlus} size={0.9} />
             </div>
-            <h2 className="font-extrabold text-slate-900 text-sm">Tambah Kategori Baru</h2>
+            <h2 className="font-bold text-slate-900 text-sm">Tambah Kategori Baru</h2>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -210,13 +210,13 @@ export default function AdminKategoriPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Contoh: Kuliner, Fashion, Kriya"
-                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-full focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
               />
             </div>
             <button
               type="submit"
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[#2d7e79] text-white py-3 rounded-2xl text-sm font-extrabold shadow-md shadow-primary/20 transition-all disabled:opacity-70 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[#2d7e79] text-white py-3 rounded-full text-[14px] font-medium shadow-md shadow-primary/20 transition-all disabled:opacity-70 cursor-pointer"
             >
               <Icon path={mdiPlus} size={0.8} />
               {submitting ? "Menyimpan..." : "Simpan Kategori"}
@@ -240,7 +240,7 @@ export default function AdminKategoriPage() {
                     setCurrentPage(1); 
                   }}
                   placeholder="Cari kategori..."
-                  className="w-full pl-10 pr-4 py-2 bg-white text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none font-medium text-slate-700 placeholder:text-slate-400 transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white text-xs border border-slate-200 rounded-full focus:ring-2 focus:ring-primary outline-none font-medium text-slate-700 placeholder:text-slate-400 transition-all"
                 />
               </div>
               {searchQuery && (
