@@ -24,6 +24,7 @@ import {
 import { db } from '@/db';
 import { umkm, products } from '@/db/schema'; 
 import { count, eq } from 'drizzle-orm';
+import PartnersMarquee from "@/components/PartnersMarquee";
 
 export default async function TentangPage() {
   
@@ -110,6 +111,24 @@ export default async function TentangPage() {
           </div>
         </div>
       </section>
+
+
+      {/* MEDIA PARTNER */}
+      <section className="py-16 bg-white border-t border-gray-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-8 text-center space-y-2">
+          <span className="text-primary font-bold text-x tracking-widest uppercase">
+            Media Partner
+          </span>
+          <h2 className="text-2xl md:text-4xl font-extrabold text-gray-800">
+            Mitra & Media Partner Resmi
+          </h2>
+          <p className="text-gray-500 text-sm max-w-lg mx-auto">
+            Berbagai instansi, jaringan ritel, dan media yang bekerja sama dalam mendukung kemajuan dan pemasaran produk UMKM Kabupaten Bekasi.
+          </p>
+        </div>
+        <PartnersMarquee />
+      </section>
+
 
       {/* Profil Platform */}
       <section className="py-16 md:py-24 max-w-310 mx-auto px-6">

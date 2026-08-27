@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { umkm, news, banners, products, categories as categoriesTable } from "@/db/schema";
 import { eq, desc, count } from "drizzle-orm";
 import Icon from "@mdi/react";
+import PartnersMarquee from "@/components/PartnersMarquee";
 import { 
   mdiEyeOutline, 
   mdiHeartOutline, 
@@ -471,6 +472,23 @@ export default async function HomePage() {
       </section>
 
 
+      {/* MEDIA PARTNER */}
+      <section className="py-16 bg-white border-t border-gray-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-8 text-center space-y-2">
+          <span className="text-primary font-bold text-x tracking-widest uppercase">
+            Media Partner
+          </span>
+          <h2 className="text-2xl md:text-4xl font-extrabold text-gray-800">
+            Mitra & Media Partner Resmi
+          </h2>
+          <p className="text-gray-500 text-sm max-w-lg mx-auto">
+            Berbagai instansi, jaringan ritel, dan media yang bekerja sama dalam mendukung kemajuan dan pemasaran produk UMKM Kabupaten Bekasi.
+          </p>
+        </div>
+        <PartnersMarquee />
+      </section>
+
+
 
       {/* KOMITMEN KAMI */}
       <section className="py-24 px-6 max-w-7xl mx-auto border-t border-gray-100 relative overflow-hidden">
@@ -627,33 +645,33 @@ export default async function HomePage() {
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-white/10 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-black/10 rounded-full blur-2xl pointer-events-none" />
 
-          <div className="relative z-10">
-            <span className="inline-block px-4 py-1 rounded-full bg-white/15 backdrop-blur-md text-white font-semibold text-xs tracking-wider uppercase border border-white/20">
-              Gerakan Bangga Produk Lokal
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white font-bold text-xs tracking-widest uppercase backdrop-blur-md">
+              Bergabung Bersama Kami
             </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+              Punya Usaha di Kabupaten Bekasi? Daftarkan UMKM Anda Sekarang!
+            </h2>
+            <p className="text-teal-light text-sm md:text-base leading-relaxed">
+              Jangkau pasar yang lebih luas, tingkatkan kredibilitas usaha, dan dapatkan berbagai program pembinaan langsung dari Dinas Koperasi & UMKM.
+            </p>
+            <div className="pt-4 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/layanan"
+                className="bg-white text-primary hover:bg-surface font-bold px-8 py-3.5 rounded-full shadow-lg transition-all text-sm"
+              >
+                Layanan Kami
+              </Link>
+              <Link
+                href="/kontak"
+                className="bg-primary-hover/50 hover:bg-primary-hover border border-white/30 text-white font-semibold px-8 py-3.5 rounded-full transition-all text-sm backdrop-blur-md"
+              >
+                Hubungi Admin
+              </Link>
+            </div>
           </div>
-
-          <h2 className="relative z-10 text-3xl md:text-5xl font-extrabold tracking-tight leading-tight max-w-2xl mx-auto">
-            Dukung UMKM Lokal Kabupaten Bekasi Bersama Kami
-          </h2>
-
-          <p className="relative z-10 text-white/90 max-w-xl mx-auto text-sm md:text-base leading-relaxed font-normal">
-            Temukan aneka pilihan produk khas Bekasi terbaik, mulai dari kuliner hingga kerajinan, dan hubungi penjualnya secara langsung tanpa perantara.
-          </p>
-
-          <div className="relative z-10 pt-2">
-            <Link
-              href="/katalog"
-              className="group inline-flex items-center gap-2 bg-white text-primary font-bold px-8 py-4 rounded-full shadow-lg hover:bg-teal-light transition-all text-sm transform hover:-translate-y-0.5 hover:scale-105"
-            >
-              <span>Mulai Cari Produk</span>
-              <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-
         </div>
       </section>
-
     </div>
   );
 }
