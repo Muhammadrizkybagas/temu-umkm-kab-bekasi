@@ -142,9 +142,9 @@ function CatalogContent() {
               <Link
                 href="/katalog/ebook"
                 target="_blank"
-                className="group flex items-center gap-3 bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold px-6 py-3.5 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                className="group flex items-center gap-3 bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold px-6 py-3.5 rounded-full text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
               >
-                <div className="p-2 bg-white/20 rounded-xl">
+                <div className="p-2 bg-white/20 rounded-full">
                   <Icon path={mdiBookOpenPageVariant} size={1} />
                 </div>
                 <div className="text-left">
@@ -175,7 +175,7 @@ function CatalogContent() {
             
             <button
               onClick={handleResetDistrict}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all hover:border-gray-300 border border-gray-200"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-full shadow-xs transition-all hover:border-gray-300 border border-gray-200"
             >
               <Icon path={mdiClose} size={0.75} className="text-gray-500" />
               <span>Tampilkan Semua Wilayah</span>
@@ -279,7 +279,7 @@ function CatalogContent() {
               <span className="font-medium">
                 Menampilkan <span className="font-bold text-gray-800">{startIndex + 1}</span> - <span className="font-bold text-gray-800">{Math.min(startIndex + ITEMS_PER_PAGE, products.length)}</span> dari total <span className="font-bold text-gray-800">{products.length}</span> produk
               </span>
-              <span className="font-extrabold text-gray-900 bg-gray-100/80 px-3.5 py-1.5 rounded-full border border-gray-200/50">
+              <span className="font-reguler text-white text-[14px] bg-teal-600 px-3.5 py-1.5 rounded-full border border-gray-200/50">
                 Halaman {currentPage} dari {totalPages}
               </span>
             </div>
@@ -346,8 +346,8 @@ function CatalogContent() {
                     {/* harga dan button */}
                     <div className="pt-3 border-t border-gray-100 flex flex-col gap-3">
                       <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">Harga Produk</span>
-                        <span className="font-extrabold text-lg text-gray-900">
+                        <span className="text-[10px] uppercase font-semibold tracking-wider text-gray-400 block">Harga Produk</span>
+                        <span className="font-bold text-lg text-teal-700">
                           Rp {item.price.toLocaleString("id-ID")}
                         </span>
                       </div>
@@ -355,7 +355,7 @@ function CatalogContent() {
                       <div className="grid grid-cols-2 gap-2">
                         <Link
                           href={`/katalog/${item.slug}`}
-                          className="text-center py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-all"
+                          className="text-center py-2.5 px-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[13px] font-medium rounded-full transition-all"
                         >
                           Detail
                         </Link>
@@ -363,7 +363,7 @@ function CatalogContent() {
                           href={getWaLink(item.phone, item.name)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-1 py-2.5 px-3 bg-primary hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm hover:shadow"
+                          className="flex items-center justify-center gap-1 py-2.5 px-2.5 bg-primary hover:bg-emerald-600 text-white text-[13px] font-medium rounded-full transition-all shadow-sm hover:shadow"
                         >
                           <Icon path={mdiWhatsapp} size={0.75} />
                           Beli
@@ -376,62 +376,104 @@ function CatalogContent() {
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p className="text-xs text-gray-500 font-medium">
-                  Halaman <span className="font-bold text-gray-800">{currentPage}</span> dari <span className="font-bold text-gray-800">{totalPages}</span>
-                </p>
-                
-                <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-2 sm:pb-0">
-                  <button
-                    onClick={() => {
-                      setCurrentPage((prev) => Math.max(prev - 1, 1));
-                      window.scrollTo({ top: 400, behavior: 'smooth' });
-                    }}
-                    disabled={currentPage === 1}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      currentPage === 1
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                    }`}
-                  >
-                    Sebelumnya
-                  </button>
+            {totalPages > 1 && (() => {
+              const getPageNumbers = () => {
+                const pages: (number | string)[] = [];
+                const maxPagesToShow = 5;
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                if (totalPages <= maxPagesToShow + 2) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else {
+                  pages.push(1);
+                  let start = Math.max(2, currentPage - 1);
+                  let end = Math.min(totalPages - 1, currentPage + 1);
+
+                  if (currentPage <= 3) {
+                    end = 4;
+                  } else if (currentPage >= totalPages - 2) {
+                    start = totalPages - 3;
+                  }
+
+                  if (start > 2) pages.push("...");
+                  for (let i = start; i <= end; i++) pages.push(i);
+                  if (end < totalPages - 1) pages.push("...");
+                  
+                  pages.push(totalPages);
+                }
+                return pages;
+              };
+
+              return (
+                <div className="pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-xs text-gray-500 font-medium">
+                    Halaman <span className="font-bold text-gray-800">{currentPage}</span> dari <span className="font-bold text-gray-800">{totalPages}</span>
+                  </p>
+                  
+                  <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-2 sm:pb-0">
                     <button
-                      key={page}
                       onClick={() => {
-                        setCurrentPage(page);
+                        setCurrentPage((prev) => Math.max(prev - 1, 1));
                         window.scrollTo({ top: 400, behavior: 'smooth' });
                       }}
-                      className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-bold transition-all shadow-xs ${
-                        currentPage === page
-                          ? "bg-primary text-white shadow-primary/20 scale-105"
-                          : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                      disabled={currentPage === 1}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        currentPage === 1
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
                       }`}
                     >
-                      {page}
+                      Sebelumnya
                     </button>
-                  ))}
 
-                  <button
-                    onClick={() => {
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                      window.scrollTo({ top: 400, behavior: 'smooth' });
-                    }}
-                    disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      currentPage === totalPages
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                    }`}
-                  >
-                    Selanjutnya
-                  </button>
+                    {getPageNumbers().map((page, index) => {
+                      if (page === "...") {
+                        return (
+                          <span key={`ellipsis-${index}`} className="w-9 h-9 flex items-center justify-center text-xs font-bold text-gray-400">
+                            ...
+                          </span>
+                        );
+                      }
+
+                      const pageNum = page as number;
+                      const isCurrent = currentPage === pageNum;
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => {
+                            setCurrentPage(pageNum);
+                            window.scrollTo({ top: 400, behavior: 'smooth' });
+                          }}
+                          className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-bold transition-all shadow-xs ${
+                            isCurrent
+                              ? "bg-primary text-white shadow-primary/20 scale-105"
+                              : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      onClick={() => {
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                        window.scrollTo({ top: 400, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === totalPages}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        currentPage === totalPages
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                      }`}
+                    >
+                      Selanjutnya
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
+
           </div>
         )}
         

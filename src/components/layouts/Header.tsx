@@ -20,7 +20,6 @@ export default function Header() {
     { label: "Hubungi Kami", href: "/kontak" },
   ];
 
-  
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
@@ -73,7 +72,6 @@ export default function Header() {
           })}
         </nav>
 
-
         <div className="hidden md:flex items-center">
           <Link
             href="/katalog"
@@ -84,19 +82,25 @@ export default function Header() {
           </Link>
         </div>
 
-
+        {/* Hamburger Button dengan Animasi Rotasi */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 text-gray-600 hover:text-primary focus:outline-none"
+          className="md:hidden p-2 text-gray-600 hover:text-primary focus:outline-none transition-transform duration-300 active:scale-90"
           aria-label="Toggle menu"
         >
-          <Icon path={isOpen ? mdiClose : mdiMenu} size={1} />
+          <div className={`transform transition-transform duration-300 ${isOpen ? "rotate-90 scale-110" : "rotate-0 scale-100"}`}>
+            <Icon path={isOpen ? mdiClose : mdiMenu} size={1} />
+          </div>
         </button>
       </div>
 
-
-      {isOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 px-6 pt-3 pb-6 space-y-3 shadow-lg">
+      {/* Mobile Menu dengan Animasi Turun & Fade */}
+      <div 
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-b border-gray-100 ${
+          isOpen ? "max-h-100 opacity-100 py-4 px-6 shadow-lg" : "max-h-0 opacity-0 py-0 px-6 border-b-0"
+        }`}
+      >
+        <div className="space-y-3">
           {menuItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -124,7 +128,7 @@ export default function Header() {
             </Link>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }
