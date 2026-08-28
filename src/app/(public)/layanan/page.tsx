@@ -1,6 +1,6 @@
 "use client";
 
-// Client component
+
 import React, { useState } from "react";
 import Icon from "@mdi/react";
 import { 
@@ -335,7 +335,7 @@ export default function LayananPage() {
 
 
                   <a
-                    href="#konsultasi"
+                    href="/kontak"
                     className="w-full bg-surface text-primary border border-teal-medium py-2.5 rounded-full text-xs md:text-[13.5px] font-semibold text-center transition-all duration-300 inline-flex items-center justify-center gap-1.5 group-hover:bg-primary group-hover:text-white group-hover:border-primary"
                   >
                     Konsultasikan Layanan <Icon path={mdiOpenInNew} size={0.7} />
@@ -386,7 +386,7 @@ export default function LayananPage() {
 
 
                   <a
-                    href="#konsultasi"
+                    href="/kontak"
                     className="w-full bg-surface text-primary border border-teal-medium py-2.5 rounded-full text-xs md:text-[13.5px] font-semibold text-center transition-all duration-300 inline-flex items-center justify-center gap-1.5 group-hover:bg-primary group-hover:text-white group-hover:border-primary"
                   >
                     Konsultasikan Layanan <Icon path={mdiOpenInNew} size={0.7} />

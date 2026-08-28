@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Icon from "@mdi/react";
 import {
@@ -13,6 +13,7 @@ import {
   mdiFilterVariant,
 } from "@mdi/js";
 import { updateUmkmPartnersAction } from "./actions";
+import Pagination from "@/components/Pagination";
 
 interface Partner {
   id: string;
@@ -44,37 +45,55 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
   const [loading, setLoading] = useState(false);
 
   
-  const partnerCounts = initialPartners.map((partner) => {
-    const count = initialUmkms.filter((u) =>
-      u.partners.some((p) => p.partner.id === partner.id)
-    ).length;
-    return { ...partner, count };
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
-  
-  const filteredUmkms = initialUmkms.filter((item) => {
-    const matchSearch =
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.ownerName.toLowerCase().includes(search.toLowerCase()) ||
-      item.district.toLowerCase().includes(search.toLowerCase());
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedPartnerFilter]);
 
-    const matchPartner =
-      selectedPartnerFilter === "ALL"
-        ? true
-        : selectedPartnerFilter === "NONE"
-        ? item.partners.length === 0
-        : item.partners.some((p) => p.partner.id === selectedPartnerFilter);
+  const partnerCounts = useMemo(() => {
+    return initialPartners.map((partner) => {
+      const count = initialUmkms.filter((u) =>
+        u.partners.some((p) => p.partner.id === partner.id)
+      ).length;
+      return { ...partner, count };
+    });
+  }, [initialPartners, initialUmkms]);
 
-    return matchSearch && matchPartner;
-  });
+  // filter cari
+  const filteredUmkms = useMemo(() => {
+    return initialUmkms.filter((item) => {
+      const matchSearch =
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
+        item.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+        item.district.toLowerCase().includes(search.toLowerCase());
 
-  
+      const matchPartner =
+        selectedPartnerFilter === "ALL"
+          ? true
+          : selectedPartnerFilter === "NONE"
+          ? item.partners.length === 0
+          : item.partners.some((p) => p.partner.id === selectedPartnerFilter);
+
+      return matchSearch && matchPartner;
+    });
+  }, [initialUmkms, search, selectedPartnerFilter]);
+
+  // pagination
+  const totalItems = filteredUmkms.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const paginatedUmkms = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredUmkms.slice(start, start + pageSize);
+  }, [filteredUmkms, currentPage, pageSize]);
+
   const openEditModal = (umkmItem: UmkmWithPartners) => {
     setActiveUmkm(umkmItem);
     setSelectedPartnerIds(umkmItem.partners.map((p) => p.partner.id));
   };
 
-  
   const togglePartnerSelection = (partnerId: string) => {
     if (selectedPartnerIds.includes(partnerId)) {
       setSelectedPartnerIds((prev) => prev.filter((id) => id !== partnerId));
@@ -83,7 +102,6 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
     }
   };
 
-  
   const handleSavePartners = async () => {
     if (!activeUmkm) return;
     setLoading(true);
@@ -100,18 +118,17 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
 
   return (
     <div className="space-y-6">
-      
+      {/* header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Icon path={mdiHandshake} size={1} className="text-primary" />
           Manajemen Mitra Ritel UMKM
         </h1>
         <p className="text-xs text-gray-500 mt-1">
-          Kelola distribusi penempatan produk UMKM pada 6 jaringan ritel modern.
+          Kelola distribusi penempatan produk UMKM pada jaringan ritel modern.
         </p>
       </div>
 
-
+      {/* statistik mitra */}
       <div className="flex flex-wrap justify-center gap-3">
         {partnerCounts.map((partner) => (
           <div
@@ -139,7 +156,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
         ))}
       </div>
 
-
+      {/* filter cari */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-2xs">
         <div className="relative w-full sm:w-80">
           <Icon path={mdiMagnify} size={0.7} className="absolute left-3 top-3 text-gray-400" />
@@ -170,8 +187,8 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
         </div>
       </div>
 
-
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-2xs">
+      {/* tabel */}
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-2xs p-4">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-gray-600">
             <thead className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold uppercase text-[10px]">
@@ -185,72 +202,86 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredUmkms.length === 0 ? (
+              {paginatedUmkms.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-8 text-gray-400">
                     Tidak ada UMKM bermitra yang ditemukan.
                   </td>
                 </tr>
               ) : (
-                filteredUmkms.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3.5 px-4 font-medium text-gray-400">{index + 1}</td>
-                    <td className="py-3.5 px-4 font-bold text-gray-900">{item.name}</td>
-                    <td className="py-3.5 px-4">{item.ownerName}</td>
-                    <td className="py-3.5 px-4">{item.district}</td>
-                    <td className="py-3.5 px-4">
-                      {item.partners.length === 0 ? (
-                        <span className="text-[11px] text-gray-400 italic">Belum disetting</span>
-                      ) : (
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {item.partners.map((p) => (
-                            <div
-                              key={p.partner.id}
-                              title={p.partner.name}
-                              className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
-                            >
-                              <div className="relative w-4 h-4">
-                                <Image
-                                  src={p.partner.logoUrl}
-                                  alt={p.partner.name}
-                                  fill
-                                  className="object-contain"
-                                />
+                paginatedUmkms.map((item, index) => {
+                  const rowNumber = (currentPage - 1) * pageSize + index + 1;
+                  return (
+                    <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3.5 px-4 font-medium text-gray-400">{rowNumber}</td>
+                      <td className="py-3.5 px-4 font-medium text-sm text-gray-900">{item.name}</td>
+                      <td className="py-3.5 px-4">{item.ownerName}</td>
+                      <td className="py-3.5 px-4">{item.district}</td>
+                      <td className="py-3.5 px-4">
+                        {item.partners.length === 0 ? (
+                          <span className="text-[11px] text-gray-400 italic">Belum disetting</span>
+                        ) : (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {item.partners.map((p) => (
+                              <div
+                                key={p.partner.id}
+                                title={p.partner.name}
+                                className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
+                              >
+                                <div className="relative w-4 h-4">
+                                  <Image
+                                    src={p.partner.logoUrl}
+                                    alt={p.partner.name}
+                                    fill
+                                    className="object-contain"
+                                  />
+                                </div>
+                                <span className="text-[10px] font-semibold text-gray-700">
+                                  {p.partner.name}
+                                </span>
                               </div>
-                              <span className="text-[10px] font-semibold text-gray-700">
-                                {p.partner.name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <button
-                        onClick={() => openEditModal(item)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Icon path={mdiPencilOutline} size={0.6} />
-                        Kelola Ritel
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <button
+                          onClick={() => openEditModal(item)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Icon path={mdiPencilOutline} size={0.6} />
+                          Kelola Mitra
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
+
+        {/* paginaton */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
-
+      {/* modal manajemen mitra */}
       {activeUmkm && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
+
             <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
               <div>
                 <h3 className="font-bold text-gray-900 text-sm">Kelola Mitra Ritel</h3>
-                <p className="text-xs text-gray-500">UMKM: <strong className="text-gray-800">{activeUmkm.name}</strong></p>
+                <p className="text-xs text-gray-500">
+                  UMKM: <strong className="text-gray-800">{activeUmkm.name}</strong>
+                </p>
               </div>
               <button
                 onClick={() => setActiveUmkm(null)}
@@ -282,15 +313,19 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
                       <div className="relative w-6 h-6 shrink-0">
                         <Image src={partner.logoUrl} alt={partner.name} fill className="object-contain" />
                       </div>
-                      <span className="text-xs font-bold text-gray-800 flex-1 truncate">{partner.name}</span>
-                      {isChecked && <Icon path={mdiCheckCircle} size={0.7} className="text-primary shrink-0" />}
+                      <span className="text-xs font-bold text-gray-800 flex-1 truncate">
+                        {partner.name}
+                      </span>
+                      {isChecked && (
+                        <Icon path={mdiCheckCircle} size={0.7} className="text-primary shrink-0" />
+                      )}
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Modal Footer */}
+              {/* Modal Footer */}
             <div className="p-4 border-t border-gray-100 flex items-center justify-end gap-2 bg-gray-50">
               <button
                 onClick={() => setActiveUmkm(null)}

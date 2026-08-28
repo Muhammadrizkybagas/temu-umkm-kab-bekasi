@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Icon from "@mdi/react";
-import { mdiArrowLeft, mdiUpload, mdiLoading } from "@mdi/js";
+import { mdiArrowLeft, mdiUpload, mdiLoading, mdiChevronDown, mdiMagnify, mdiCheck } from "@mdi/js";
 import { uploadFileAction } from "@/app/actions/upload";
 import { createProduct, getProductFormOptions } from "../actions";
 
@@ -29,7 +29,10 @@ export default function TambahProdukPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  
+  const [isUmkmOpen, setIsUmkmOpen] = useState(false);
+  const [umkmSearch, setUmkmSearch] = useState("");
+  const umkmDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     async function loadOptions() {
       try {
@@ -45,6 +48,24 @@ export default function TambahProdukPage() {
 
     loadOptions();
   }, []);
+
+  
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (umkmDropdownRef.current && !umkmDropdownRef.current.contains(event.target as Node)) {
+        setIsUmkmOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  
+  const filteredUmkms = umkms.filter((u) =>
+    u.name.toLowerCase().includes(umkmSearch.toLowerCase())
+  );
+
+  const selectedUmkm = umkms.find((u) => u.id === umkmId);
 
   // upload gambar
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,29 +206,79 @@ export default function TambahProdukPage() {
             />
           </div>
 
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             
-            <div>
+            {/* seacrh umkm */}
+            <div className="relative" ref={umkmDropdownRef}>
               <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
                 Pemilik UMKM <span className="text-red-500">*</span>
               </label>
-              <select
-                required
-                value={umkmId}
-                onChange={(e) => setUmkmId(e.target.value)}
+              
+              
+              <button
+                type="button"
                 disabled={loadingOptions}
-                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer"
+                onClick={() => setIsUmkmOpen(!isUmkmOpen)}
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer flex items-center justify-between text-left"
               >
-                <option value="">
-                  {loadingOptions ? "-- Memuat UMKM... --" : "-- Pilih UMKM --"}
-                </option>
-                {umkms.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
-              </select>
+                <span className={selectedUmkm ? "text-slate-800" : "text-slate-400"}>
+                  {loadingOptions
+                    ? "-- Memuat UMKM... --"
+                    : selectedUmkm
+                    ? selectedUmkm.name
+                    : "-- Pilih UMKM --"}
+                </span>
+                <Icon path={mdiChevronDown} size={0.8} className={`text-slate-400 transition-transform duration-200 ${isUmkmOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* dropdown menu*/}
+              {isUmkmOpen && (
+                <div className="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+                    <Icon path={mdiMagnify} size={0.7} className="text-slate-400 ml-2 shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Cari nama UMKM..."
+                      value={umkmSearch}
+                      onChange={(e) => setUmkmSearch(e.target.value)}
+                      autoFocus
+                      className="w-full py-1.5 pr-3 text-xs bg-transparent outline-none font-medium text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  {/* List opsi */}
+                  <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+                    {filteredUmkms.length > 0 ? (
+                      filteredUmkms.map((u) => {
+                        const isSelected = u.id === umkmId;
+                        return (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => {
+                              setUmkmId(u.id);
+                              setIsUmkmOpen(false);
+                              setUmkmSearch("");
+                            }}
+                            className={`w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-left flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-primary/10 text-primary"
+                                : "text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            <span>{u.name}</span>
+                            {isSelected && <Icon path={mdiCheck} size={0.6} className="text-primary" />}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="py-4 text-center text-xs text-slate-400 font-medium">
+                        UMKM tidak ditemukan
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* pilih kategori */}
