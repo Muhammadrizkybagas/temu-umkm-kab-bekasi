@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Swal from "sweetalert2";
 import Icon from "@mdi/react";
-import { mdiArrowLeft, mdiUpload, mdiLoading } from "@mdi/js";
+import {
+  mdiArrowLeft,
+  mdiUpload,
+  mdiLoading,
+  mdiChevronDown,
+  mdiMagnify,
+  mdiCheck,
+} from "@mdi/js";
 import { uploadFileAction } from "@/app/actions/upload";
 import {
   getProductById,
@@ -27,7 +33,7 @@ export default function EditProductPage({
   const { id: productId } = use(params);
 
   const [categories, setCategories] = useState<DropdownItem[]>([]);
-  const [umkmList, setUmkmList] = useState<DropdownItem[]>([]);
+  const [umkms, setUmkms] = useState<DropdownItem[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -42,20 +48,29 @@ export default function EditProductPage({
     categoryId: "",
   });
 
-  
+  // State & Ref untuk Custom Searchable Dropdown UMKM
+  const [isUmkmOpen, setIsUmkmOpen] = useState(false);
+  const [umkmSearch, setUmkmSearch] = useState("");
+  const umkmDropdownRef = useRef<HTMLDivElement>(null);
+
+  // State & Ref untuk Custom Searchable Dropdown Kategori
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
 
-        const [{ umkmList: umkms, categoryList: cats }, prodData] =
+        const [{ umkmList: umkmData, categoryList: catData }, prodData] =
           await Promise.all([
             getProductFormOptions(),
             getProductById(productId),
           ]);
 
-        setCategories(cats);
-        setUmkmList(umkms);
+        setCategories(catData);
+        setUmkms(umkmData);
 
         if (prodData) {
           setForm({
@@ -85,7 +100,39 @@ export default function EditProductPage({
     if (productId) fetchData();
   }, [productId, router]);
 
-  
+  // Close dropdown saat klik di luar
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        umkmDropdownRef.current &&
+        !umkmDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsUmkmOpen(false);
+      }
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCategoryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter UMKM & Kategori berdasarkan input pencarian
+  const filteredUmkms = umkms.filter((u) =>
+    u.name.toLowerCase().includes(umkmSearch.toLowerCase())
+  );
+
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
+  const selectedUmkm = umkms.find((u) => u.id === form.umkmId);
+  const selectedCategory = categories.find((c) => c.id === form.categoryId);
+
+  // Handle upload gambar
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -109,7 +156,7 @@ export default function EditProductPage({
     }
   };
 
-  
+  // Handle submit form edit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -145,7 +192,11 @@ export default function EditProductPage({
       router.push("/admin/produk");
     } catch (err: any) {
       console.error("Submit error:", err);
-      Swal.fire("Gagal!", err.message || "Terjadi kesalahan saat memperbarui produk.", "error");
+      Swal.fire(
+        "Gagal!",
+        err.message || "Terjadi kesalahan saat memperbarui produk.",
+        "error"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -153,169 +204,292 @@ export default function EditProductPage({
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-gray-400 flex items-center justify-center gap-2">
-        <Icon path={mdiLoading} size={1} className="animate-spin" />
+      <div className="p-12 text-center text-slate-400 flex items-center justify-center gap-2 font-medium">
+        <Icon path={mdiLoading} size={1} className="animate-spin text-primary" />
         Memuat data produk...
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-6">
+    <div className="max-w-4xl mx-auto pb-12">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link
-          href="/admin/produk"
-          className="p-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-all"
+        <button
+          onClick={() => router.back()}
+          className="w-10 h-10 rounded-2xl bg-white border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
         >
-          <Icon path={mdiArrowLeft} size={0.8} />
-        </Link>
+          <Icon path={mdiArrowLeft} size={0.9} />
+        </button>
         <div>
-          <h1 className="text-2xl font-bold text-textMain">Edit Produk</h1>
-          <p className="text-sm text-gray-500">Perbarui informasi produk UMKM</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Edit Produk</h1>
+          <p className="text-sm font-medium text-slate-500">Perbarui informasi produk UMKM</p>
         </div>
       </div>
 
-      {/* Form Card */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm space-y-5">
-        {/* Upload Foto */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Foto Produk
-          </label>
-          <div className="flex items-center gap-4">
-            {form.imageUrl ? (
-              <img
-                src={form.imageUrl}
-                alt="Preview"
-                className="w-20 h-20 rounded-xl object-cover border border-gray-200"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-xl bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center text-xs text-gray-400">
-                No Pic
+      {/* Main Card Form */}
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
+          {/* Foto Produk */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
+              Foto Produk
+            </label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0 shadow-xs">
+                {form.imageUrl ? (
+                  <img
+                    src={form.imageUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[11px] font-bold text-slate-400 text-center px-1">
+                    Belum ada foto
+                  </span>
+                )}
               </div>
-            )}
-            <div>
-              <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-4 py-2.5 rounded-lg transition-all inline-flex items-center gap-2">
-                <Icon
-                  path={uploading ? mdiLoading : mdiUpload}
-                  size={0.7}
-                  className={uploading ? "animate-spin" : ""}
-                />
-                {uploading ? "Mengunggah..." : "Ganti Foto"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={uploading}
-                />
-              </label>
-              <p className="text-[11px] text-gray-400 mt-1">Format JPG, PNG, WEBP max 2MB</p>
+              <div className="space-y-1.5">
+                <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-medium cursor-pointer transition-all border border-slate-200/60 shadow-xs">
+                  <Icon
+                    path={uploading ? mdiLoading : mdiUpload}
+                    size={0.7}
+                    className={uploading ? "animate-spin text-primary" : ""}
+                  />
+                  <span>{uploading ? "Mengunggah..." : "Ganti Foto"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  Format JPG, PNG, WEBP max 2MB
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Nama Produk */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Nama Produk *
-          </label>
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary"
-          />
-        </div>
-
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Nama Produk */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Pemilik UMKM *
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+              Nama Produk <span className="text-red-500">*</span>
             </label>
-            <select
+            <input
+              type="text"
               required
-              value={form.umkmId}
-              onChange={(e) => setForm((p) => ({ ...p, umkmId: e.target.value }))}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary"
-            >
-              <option value="">-- Pilih UMKM --</option>
-              {umkmList.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Masukkan nama produk"
+              value={form.name}
+              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+              className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+            />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Kategori Produk *
-            </label>
-            <select
-              required
-              value={form.categoryId}
-              onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary"
-            >
-              <option value="">-- Pilih Kategori --</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            {/* SEARCHABLE DROPDOWN UMKM */}
+            <div className="relative" ref={umkmDropdownRef}>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                Pemilik UMKM <span className="text-red-500">*</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUmkmOpen(!isUmkmOpen);
+                  setIsCategoryOpen(false);
+                }}
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 cursor-pointer flex items-center justify-between text-left"
+              >
+                <span className={selectedUmkm ? "text-slate-800" : "text-slate-400"}>
+                  {selectedUmkm ? selectedUmkm.name : "-- Pilih UMKM --"}
+                </span>
+                <Icon
+                  path={mdiChevronDown}
+                  size={0.8}
+                  className={`text-slate-400 transition-transform duration-200 ${
+                    isUmkmOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isUmkmOpen && (
+                <div className="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+                    <Icon path={mdiMagnify} size={0.7} className="text-slate-400 ml-2 shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Cari nama UMKM..."
+                      value={umkmSearch}
+                      onChange={(e) => setUmkmSearch(e.target.value)}
+                      autoFocus
+                      className="w-full py-1.5 pr-3 text-xs bg-transparent outline-none font-medium text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+                    {filteredUmkms.length > 0 ? (
+                      filteredUmkms.map((u) => {
+                        const isSelected = u.id === form.umkmId;
+                        return (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => {
+                              setForm((p) => ({ ...p, umkmId: u.id }));
+                              setIsUmkmOpen(false);
+                              setUmkmSearch("");
+                            }}
+                            className={`w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-left flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-primary/10 text-primary"
+                                : "text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            <span>{u.name}</span>
+                            {isSelected && <Icon path={mdiCheck} size={0.6} className="text-primary" />}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="py-4 text-center text-xs text-slate-400 font-medium">
+                        UMKM tidak ditemukan
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SEARCHABLE DROPDOWN KATEGORI PRODUK */}
+            <div className="relative" ref={categoryDropdownRef}>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                Kategori Produk <span className="text-red-500">*</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCategoryOpen(!isCategoryOpen);
+                  setIsUmkmOpen(false);
+                }}
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 cursor-pointer flex items-center justify-between text-left"
+              >
+                <span className={selectedCategory ? "text-slate-800" : "text-slate-400"}>
+                  {selectedCategory ? selectedCategory.name : "-- Pilih Kategori --"}
+                </span>
+                <Icon
+                  path={mdiChevronDown}
+                  size={0.8}
+                  className={`text-slate-400 transition-transform duration-200 ${
+                    isCategoryOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isCategoryOpen && (
+                <div className="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+                    <Icon path={mdiMagnify} size={0.7} className="text-slate-400 ml-2 shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Cari kategori..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      autoFocus
+                      className="w-full py-1.5 pr-3 text-xs bg-transparent outline-none font-medium text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+                    {filteredCategories.length > 0 ? (
+                      filteredCategories.map((c) => {
+                        const isSelected = c.id === form.categoryId;
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => {
+                              setForm((p) => ({ ...p, categoryId: c.id }));
+                              setIsCategoryOpen(false);
+                              setCategorySearch("");
+                            }}
+                            className={`w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-left flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-primary/10 text-primary"
+                                : "text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            <span>{c.name}</span>
+                            {isSelected && <Icon path={mdiCheck} size={0.6} className="text-primary" />}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="py-4 text-center text-xs text-slate-400 font-medium">
+                        Kategori tidak ditemukan
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
-        </div>
 
-        {/* Harga */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Harga (Rp) *
-          </label>
-          <input
-            type="number"
-            required
-            value={form.price}
-            onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary"
-          />
-        </div>
+          {/* Harga */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+              Harga (Rp) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              required
+              placeholder="0"
+              value={form.price}
+              onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
+              className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+            />
+          </div>
 
-        {/* Deskripsi */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Deskripsi Produk
-          </label>
-          <textarea
-            rows={4}
-            value={form.description}
-            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary"
-          />
-        </div>
+          {/* Deskripsi */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+              Deskripsi Produk
+            </label>
+            <textarea
+              rows={4}
+              placeholder="Tuliskan deskripsi ringkas mengenai produk..."
+              value={form.description}
+              onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+              className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+            ></textarea>
+          </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-          <Link
-            href="/admin/produk"
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-all"
-          >
-            Batal
-          </Link>
-          <button
-            type="submit"
-            disabled={submitting || uploading}
-            className="px-5 py-2 bg-primary hover:bg-[#2489b5] text-white text-sm font-semibold rounded-lg transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
-          >
-            {submitting && <Icon path={mdiLoading} size={0.7} className="animate-spin" />}
-            {submitting ? "Menyimpan..." : "Simpan Perubahan"}
-          </button>
-        </div>
-      </form>
+          {/* button */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 rounded-full font-medium text-[13px] bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || uploading}
+              className="px-6 py-3 rounded-full font-medium text-[13px] bg-primary hover:bg-[#2d7e79] text-white shadow-md shadow-primary/20 transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2"
+            >
+              {submitting && <Icon path={mdiLoading} size={0.7} className="animate-spin" />}
+              {submitting ? "Menyimpan..." : "Simpan Perubahan"}
+            </button>
+          </div>
+
+        </form>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
   mdiPencilOutline,
   mdiDeleteOutline,
   mdiImageOffOutline,
+  mdiClose
 } from "@mdi/js";
 import Pagination from "@/components/Pagination";
 import { getProducts, deleteProduct } from "./actions";
@@ -213,21 +214,31 @@ export default function AdminProdukPage() {
     </div>
 
       {/* card tabel */}
-      <div className="bg-secondary rounded-xl shadow-soft border border-gray-100 overflow-hidden p-4">
+      <div className="bg-secondary rounded-xl shadow-soft  overflow-hidden p-4">
         <div className="mb-4 flex flex-col md:flex-row gap-3 justify-between items-center">
-          <div className="relative w-full md:w-80">
-            <Icon
-              path={mdiMagnify}
-              size={0.8}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+          <div className="relative w-full sm:w-80 md:w-96 group">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200 pointer-events-none flex items-center">
+              <Icon path={mdiMagnify} size={0.85} />
+            </div>
+
             <input
               type="text"
-              placeholder="Cari produk / UMKM..."
+              placeholder="Cari produk atau UMKM..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
             />
+
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => handleSearchChange({ target: { value: "" } } as any)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all cursor-pointer"
+                title="Bersihkan pencarian"
+              >
+                <Icon path={mdiClose} size={0.55} />
+              </button>
+            )}
           </div>
 
           {/* button export */}
@@ -311,14 +322,14 @@ export default function AdminProdukPage() {
                           <div className="flex gap-2 justify-center items-center">
                             <Link
                               href={`/admin/produk/edit/${item.id}`}
-                              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold rounded-md transition-colors flex items-center gap-1"
+                              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-teal-600 text-xs font-medium rounded-md transition-colors flex items-center gap-1"
                             >
                               <Icon path={mdiPencilOutline} size={0.65} />
                               Edit
                             </Link>
                             <button
                               onClick={() => handleDelete(item.id, item.name)}
-                              className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-md transition-colors flex items-center gap-1"
+                              className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-md transition-colors flex items-center gap-1"
                             >
                               <Icon path={mdiDeleteOutline} size={0.65} />
                               Hapus

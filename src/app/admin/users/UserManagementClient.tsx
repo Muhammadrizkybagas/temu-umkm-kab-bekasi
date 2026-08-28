@@ -11,7 +11,8 @@ import {
   mdiEyeOutline,
   mdiEyeOffOutline,
   mdiMagnify,
-  mdiEmailOutline
+  mdiEmailOutline,
+  mdiClose
 } from "@mdi/js";
 import Swal from "sweetalert2";
 import { createUser, updateUserDetail, updateUserPassword, deleteUser } from "./actions";
@@ -171,23 +172,27 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
     </div>
 
       {/* search */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center shrink-0 border border-slate-200/60">
-          <Icon path={mdiMagnify} size={0.8} />
+      <div className="relative w-full sm:w-80 md:w-96 group">
+        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200 pointer-events-none flex items-center">
+          <Icon path={mdiMagnify} size={0.85} />
         </div>
+
         <input
           type="text"
-          placeholder="Cari berdasarkan nama, email, atau role..."
+          placeholder="Cari nama, email, atau role..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-transparent text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none"
+          className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
         />
+
         {searchQuery && (
-          <button 
+          <button
+            type="button"
             onClick={() => setSearchQuery("")}
-            className="text-xs font-bold text-slate-400 hover:text-slate-600 px-3 py-1.5 rounded-xl hover:bg-slate-100 transition-all"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all cursor-pointer"
+            title="Bersihkan pencarian"
           >
-            Reset
+            <Icon path={mdiClose} size={0.55} />
           </button>
         )}
       </div>

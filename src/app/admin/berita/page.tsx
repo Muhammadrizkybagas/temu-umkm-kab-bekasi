@@ -15,6 +15,7 @@ import {
   mdiHeartOutline,
   mdiNewspaper,
   mdiAccountOutline,
+  mdiClose
 } from "@mdi/js";
 import Pagination from "@/components/Pagination";
 
@@ -157,15 +158,30 @@ export default function AdminBeritaPage() {
 
       <div className="bg-secondary rounded-xl shadow-soft border border-gray-100 overflow-hidden p-4">
         <div className="mb-4 flex flex-col md:flex-row gap-3 justify-between items-center">
-          <div className="relative w-full md:w-80">
-            <Icon path={mdiMagnify} size={0.8} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div className="relative w-full sm:w-80 md:w-96 group">
+            
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200 pointer-events-none flex items-center">
+              <Icon path={mdiMagnify} size={0.85} />
+            </div>
+
             <input
               type="text"
-              placeholder="Cari judul berita..."
+              placeholder="Cari judul atau isi berita..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
             />
+
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => handleSearchChange({ target: { value: "" } } as any)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all cursor-pointer"
+                title="Bersihkan pencarian"
+              >
+                <Icon path={mdiClose} size={0.55} />
+              </button>
+            )}
           </div>
         </div>
 

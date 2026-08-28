@@ -15,15 +15,15 @@ export default async function AdminLayout({
   const token = cookieStore.get("auth_token")?.value;
 
   if (!token) {
-    redirect("/login");
+    redirect("/admin/login");
   }
 
   const decoded = verifyToken(token) as { id?: string; role?: string } | null;
   if (!decoded?.id) {
-    redirect("/login");
+    redirect("/admin/login");
   }
 
-  const currentUser = await db
+  const userList = await db
     .select({
       id: users.id,
       name: users.name,
@@ -31,11 +31,12 @@ export default async function AdminLayout({
       role: users.role,
     })
     .from(users)
-    .where(eq(users.id, decoded.id))
-    .get();
+    .where(eq(users.id, decoded.id));
+
+  const currentUser = userList[0];
 
   if (!currentUser) {
-    redirect("/login");
+    redirect("/admin/login");
   }
 
   return (

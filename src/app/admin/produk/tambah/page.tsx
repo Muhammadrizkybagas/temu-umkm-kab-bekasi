@@ -29,9 +29,15 @@ export default function TambahProdukPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  
   const [isUmkmOpen, setIsUmkmOpen] = useState(false);
   const [umkmSearch, setUmkmSearch] = useState("");
   const umkmDropdownRef = useRef<HTMLDivElement>(null);
+
+  
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadOptions() {
@@ -55,17 +61,25 @@ export default function TambahProdukPage() {
       if (umkmDropdownRef.current && !umkmDropdownRef.current.contains(event.target as Node)) {
         setIsUmkmOpen(false);
       }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  
+  // filter
   const filteredUmkms = umkms.filter((u) =>
     u.name.toLowerCase().includes(umkmSearch.toLowerCase())
   );
 
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
   const selectedUmkm = umkms.find((u) => u.id === umkmId);
+  const selectedCategory = categories.find((c) => c.id === categoryId);
 
   // upload gambar
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +164,7 @@ export default function TambahProdukPage() {
         </div>
       </div>
 
-      {/* card main*/}
+      {/* card main */}
       <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
           
@@ -162,7 +176,7 @@ export default function TambahProdukPage() {
                 {imageUrl ? (
                   <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-[11px] font-bold text-slate-400 text-center px-1">Belum ada foto</span>
+                  <span className="text-[11px] font-medium text-slate-400 text-center px-1">Belum ada foto</span>
                 )}
               </div>
               <div className="space-y-1.5">
@@ -208,17 +222,19 @@ export default function TambahProdukPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             
-            {/* seacrh umkm */}
+            {/* dropdown umkm*/}
             <div className="relative" ref={umkmDropdownRef}>
               <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
                 Pemilik UMKM <span className="text-red-500">*</span>
               </label>
               
-              
               <button
                 type="button"
                 disabled={loadingOptions}
-                onClick={() => setIsUmkmOpen(!isUmkmOpen)}
+                onClick={() => {
+                  setIsUmkmOpen(!isUmkmOpen);
+                  setIsCategoryOpen(false);
+                }}
                 className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer flex items-center justify-between text-left"
               >
                 <span className={selectedUmkm ? "text-slate-800" : "text-slate-400"}>
@@ -231,7 +247,6 @@ export default function TambahProdukPage() {
                 <Icon path={mdiChevronDown} size={0.8} className={`text-slate-400 transition-transform duration-200 ${isUmkmOpen ? "rotate-180" : ""}`} />
               </button>
 
-              {/* dropdown menu*/}
               {isUmkmOpen && (
                 <div className="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
@@ -246,7 +261,6 @@ export default function TambahProdukPage() {
                     />
                   </div>
 
-                  {/* List opsi */}
                   <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
                     {filteredUmkms.length > 0 ? (
                       filteredUmkms.map((u) => {
@@ -281,28 +295,79 @@ export default function TambahProdukPage() {
               )}
             </div>
 
-            {/* pilih kategori */}
-            <div>
+            {/* kategori */}
+            <div className="relative" ref={categoryDropdownRef}>
               <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
                 Kategori Produk <span className="text-red-500">*</span>
               </label>
-              <select
-                required
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+
+              <button
+                type="button"
                 disabled={loadingOptions}
-                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer"
+                onClick={() => {
+                  setIsCategoryOpen(!isCategoryOpen);
+                  setIsUmkmOpen(false);
+                }}
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 disabled:bg-slate-100 cursor-pointer flex items-center justify-between text-left"
               >
-                <option value="">
-                  {loadingOptions ? "-- Memuat Kategori... --" : "-- Pilih Kategori --"}
-                </option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                <span className={selectedCategory ? "text-slate-800" : "text-slate-400"}>
+                  {loadingOptions
+                    ? "-- Memuat Kategori... --"
+                    : selectedCategory
+                    ? selectedCategory.name
+                    : "-- Pilih Kategori --"}
+                </span>
+                <Icon path={mdiChevronDown} size={0.8} className={`text-slate-400 transition-transform duration-200 ${isCategoryOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isCategoryOpen && (
+                <div className="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+                    <Icon path={mdiMagnify} size={0.7} className="text-slate-400 ml-2 shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Cari kategori..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      autoFocus
+                      className="w-full py-1.5 pr-3 text-xs bg-transparent outline-none font-medium text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  <div className="max-h-56 overflow-y-auto p-1.5 space-y-0.5">
+                    {filteredCategories.length > 0 ? (
+                      filteredCategories.map((c) => {
+                        const isSelected = c.id === categoryId;
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => {
+                              setCategoryId(c.id);
+                              setIsCategoryOpen(false);
+                              setCategorySearch("");
+                            }}
+                            className={`w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-left flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-primary/10 text-primary"
+                                : "text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            <span>{c.name}</span>
+                            {isSelected && <Icon path={mdiCheck} size={0.6} className="text-primary" />}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="py-4 text-center text-xs text-slate-400 font-medium">
+                        Kategori tidak ditemukan
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
+
           </div>
 
           {/* Harga */}
@@ -336,14 +401,14 @@ export default function TambahProdukPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 rounded-2xl font-extrabold text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
+              className="px-6 py-3 rounded-full font-medium text-[13px] bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={submitting || uploading}
-              className="px-6 py-3 rounded-2xl font-extrabold text-xs bg-primary hover:bg-[#2d7e79] text-white shadow-md shadow-primary/20 transition-all disabled:opacity-50 cursor-pointer"
+              className="px-6 py-3 rounded-full font-medium text-[13px] bg-primary hover:bg-[#2d7e79] text-white shadow-md shadow-primary/20 transition-all disabled:opacity-50 cursor-pointer"
             >
               {submitting ? "Menyimpan..." : "Simpan Produk"}
             </button>

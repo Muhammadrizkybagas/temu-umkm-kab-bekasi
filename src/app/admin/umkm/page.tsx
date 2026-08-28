@@ -4,7 +4,13 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import Icon from "@mdi/react";
-import { mdiDomain, mdiTrendingUp, mdiHandshake } from "@mdi/js";
+import { 
+  mdiDomain, 
+  mdiTrendingUp, 
+  mdiHandshake,
+  mdiClose,
+  mdiMagnify
+} from "@mdi/js";
 import Pagination from "@/components/Pagination";
 import { getUmkms, toggleNaikKelasStatus, toggleStatusKemitraan, deleteUmkm } from "./actions";
 
@@ -305,14 +311,29 @@ export default function AdminUMKMPage() {
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6 relative w-full sm:w-96 md:w-112.5 group">
+        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200 pointer-events-none flex items-center">
+          <Icon path={mdiMagnify} size={0.85} />
+        </div>
+
         <input
           type="text"
-          placeholder="Cari berdasarkan nama UMKM, pemilik, kecamatan, no HP..."
+          placeholder="Cari berdasarkan nama umkm, pemilik, kecamatan"
           value={search}
           onChange={handleSearchChange}
-          className="w-full md:w-96 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          className="w-full pl-10 pr-10 py-3 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
         />
+
+        {search && (
+          <button
+            type="button"
+            onClick={() => handleSearchChange({ target: { value: "" } } as any)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all cursor-pointer"
+            title="Bersihkan pencarian"
+          >
+            <Icon path={mdiClose} size={0.55} />
+          </button>
+        )}
       </div>
 
       <div className="bg-secondary rounded-xl shadow-soft border border-gray-100 overflow-hidden p-4">
@@ -392,13 +413,13 @@ export default function AdminUMKMPage() {
                         <td className="p-4 text-right space-x-2">
                           <Link
                             href={`/admin/umkm/edit/${item.id}`}
-                            className="text-teal-600 hover:text-teal-800 font-medium text-xs px-2.5 py-1.5 bg-blue-50 rounded-md hover:bg-blue-100 transition-all inline-block"
+                            className="text-teal-600 mb-1 hover:text-teal-800 font-medium text-xs px-2.5 py-1.5 bg-blue-50 rounded-full hover:bg-blue-100 transition-all inline-block"
                           >
                             Edit
                           </Link>
                           <button
                             onClick={() => handleDelete(item.id, item.name)}
-                            className="text-red-600 hover:text-red-800 font-medium text-xs px-2.5 py-1.5 bg-red-50 rounded-md hover:bg-red-100 transition-all"
+                            className="text-red-600 hover:text-red-800 font-medium text-xs px-2.5 py-1.5 bg-red-50 rounded-full hover:bg-red-100 transition-all"
                           >
                             Hapus
                           </button>
