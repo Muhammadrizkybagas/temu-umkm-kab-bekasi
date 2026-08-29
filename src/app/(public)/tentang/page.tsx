@@ -78,37 +78,70 @@ export default async function TentangPage() {
             </Link>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Statistik Database */}
-          <div className="-mt-6 md:-mt-12 relative z-10 pt-12">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-6 md:p-8 rounded-[20px] shadow-[0_10px_30px_rgba(52,144,139,0.08)] border border-[rgba(165,233,221,0.4)]">
-              {stats.map((stat, i) => (
-                <div
-                  key={i}
-                  className="group relative bg-surface hover:bg-white p-4 rounded-2xl border border-gray-100/90 shadow-2xs hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary to-teal-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-teal-light to-teal-medium text-primary flex items-center justify-center shrink-0 shadow-xs group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                      <Icon path={stat.icon} size={1.2} />
-                    </div>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-light/40 text-primary border border-teal-light/60">
-                      Live Data
-                    </span>
-                  </div>
+      {/* KPI SECTION */}
+      <section className="relative py-10 sm:py-16 bg-linear-to-b from-teal-light/10 via-white to-white overflow-hidden border-y border-teal-light/30">
 
-                  <div>
-                    <div className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight group-hover:text-primary transition-colors">
-                      {stat.value.toLocaleString("id-ID")}
-                    </div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
-                      {stat.title}
-                    </div>
-                  </div>
-                </div>
-              ))}
+        <div className="absolute inset-0 bg-[radial-gradient(#34908B_1px,transparent_1px)] bg-size-[20px_20px] opacity-[0.07] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-72 h-72 bg-teal-light/30 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          
+          <div className="mb-6 sm:mb-8 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-primary bg-teal-light/30 px-3 py-1 rounded-full border border-teal-medium/30">
+                Statistik Terkini
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mt-2">
+                Dampak & Portal UMKM
+              </h2>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-white px-3 py-1.5 rounded-full border border-teal-light/50 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              UMKM Aktif
             </div>
           </div>
+
+          {/* responsive*/}
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+            {stats.map((stat, i) => (
+              <div
+                key={i}
+                className="snap-center shrink-0 w-[80vw] sm:w-auto group relative bg-white/80 backdrop-blur-md p-6 rounded-4xl border border-teal-light/40 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+              >
+                
+                <div className="absolute top-0 left-6 right-6 h-0.75 bg-linear-to-r from-primary via-teal-medium to-teal-light rounded-b-full opacity-80 group-hover:opacity-100 transition-opacity" />
+
+                {/* watermark icon */}
+                <div className="absolute -bottom-4 -right-4 text-teal-light/20 group-hover:text-primary/10 group-hover:scale-110 transition-all duration-500 pointer-events-none">
+                  <Icon path={stat.icon} size={5} />
+                </div>
+
+                <div className="flex items-center justify-between gap-4 mb-6 relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-light/30 text-primary flex items-center justify-center shrink-0 border border-teal-medium/20 group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
+                    <Icon path={stat.icon} size={1.1} />
+                  </div>
+
+                  <span className="text-[14px] font-semibold text-teal-medium uppercase tracking-wider">
+                    #{i + 1}
+                  </span>
+                </div>
+
+                <div className="relative z-10 space-y-1">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight group-hover:text-primary transition-colors">
+                    {stat.value.toLocaleString("id-ID")}
+                  </div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    {stat.title}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </section>
 

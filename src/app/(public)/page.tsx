@@ -18,24 +18,87 @@ import {
   mdiShieldCheckOutline,
   mdiBullhornOutline,
   mdiScaleBalance,
-  mdiSchoolOutline
+  mdiSchoolOutline,
+  mdiHandshakeOutline
 } from "@mdi/js";
 import BannerCarousel from "@/components/BannerCarousel";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // FETCH KPI STATS
-  const [{ value: totalUmkm }] = await db.select({ value: count() }).from(umkm);
-  const [{ value: totalProducts }] = await db.select({ value: count() }).from(products);
-  const [{ value: totalNaikKelas }] = await db
-    .select({ value: count() })
-    .from(umkm)
-    .where(eq(umkm.isNaikKelas, true));
-  const [{ value: totalBermitra }] = await db
-    .select({ value: count() })
-    .from(umkm)
-    .where(eq(umkm.status, "Bermitra"));
+  // run query
+  const [
+    [{ value: totalUmkm }],
+    [{ value: totalProducts }],
+    [{ value: totalNaikKelas }],
+    [{ value: totalBermitra }],
+    activeBanners,
+    produkBermitraRaw,
+    produkNaikKelas,
+    beritaTerbaru,
+  ] = await Promise.all([
+    // KPI Stats
+    db.select({ value: count() }).from(umkm),
+    db.select({ value: count() }).from(products),
+    db.select({ value: count() }).from(umkm).where(eq(umkm.isNaikKelas, true)),
+    db.select({ value: count() }).from(umkm).where(eq(umkm.status, "Bermitra")),
+
+    // Banner
+    db.select()
+      .from(banners)
+      .where(eq(banners.isActive, 1))
+      .orderBy(desc(banners.order)),
+
+    // Produk Bermitra
+    db.select({
+        id: products.id,
+        slug: products.slug,
+        name: products.name,
+        category: categoriesTable.name,
+        price: products.price,
+        imageUrl: products.imageUrl,
+        umkmName: umkm.name,
+        district: umkm.district,
+        whatsapp: umkm.phone,
+        umkmStatus: umkm.status,
+      })
+      .from(products)
+      .innerJoin(umkm, eq(products.umkmId, umkm.id))
+      .leftJoin(categoriesTable, eq(products.categoryId, categoriesTable.id))
+      .where(eq(umkm.status, "Bermitra"))
+      .orderBy(desc(products.createdAt))
+      .limit(10),
+
+    // Produk Naik Kelas
+    db.select({
+        id: products.id,
+        slug: products.slug,
+        name: products.name,
+        category: categoriesTable.name,
+        price: products.price,
+        imageUrl: products.imageUrl,
+        umkmName: umkm.name,
+        district: umkm.district,
+        whatsapp: umkm.phone,
+        isNaikKelas: umkm.isNaikKelas,
+      })
+      .from(products)
+      .innerJoin(umkm, eq(products.umkmId, umkm.id))
+      .leftJoin(categoriesTable, eq(products.categoryId, categoriesTable.id))
+      .where(eq(umkm.isNaikKelas, true))
+      .orderBy(desc(products.createdAt))
+      .limit(10),
+
+    // Berita Terbaru
+    db.select()
+      .from(news)
+      .where(eq(news.status, "Published"))
+      .orderBy(desc(news.createdAt))
+      .limit(6),
+  ]);
+
+  
+  const produkBermitra = produkBermitraRaw;
 
   const stats = [
     { title: "Total UMKM Terdaftar", value: totalUmkm, icon: mdiDomain },
@@ -44,93 +107,22 @@ export default async function HomePage() {
     { title: "UMKM Bermitra", value: totalBermitra, icon: mdiHandshake },
   ];
 
-
-
-  // FETCH BANNER AKTIF
-  const activeBanners = await db
-    .select()
-    .from(banners)
-    .where(eq(banners.isActive, 1))
-    .orderBy(desc(banners.order));
-
-
-
-  // FETCH PRODUK BERMITRA 
-  const produkBermitra = await db
-    .select({
-      id: products.id,
-      slug: products.slug,
-      name: products.name,
-      category: categoriesTable.name,
-      price: products.price,
-      imageUrl: products.imageUrl,
-      umkmName: umkm.name,
-      district: umkm.district,
-      whatsapp: umkm.phone,
-      umkmStatus: umkm.status,
-    })
-    .from(products)
-    .innerJoin(umkm, eq(products.umkmId, umkm.id))
-    .innerJoin(categoriesTable, eq(products.categoryId, categoriesTable.id))
-    .where(eq(umkm.status, "Bermitra"))
-    .orderBy(desc(products.createdAt))
-    .limit(10);
-
-  // FETCH PRODUK NAIK KELAS
-  const produkNaikKelas = await db
-    .select({
-      id: products.id,
-      slug: products.slug,
-      name: products.name,
-      category: categoriesTable.name,
-      price: products.price,
-      imageUrl: products.imageUrl,
-      umkmName: umkm.name,
-      district: umkm.district,
-      whatsapp: umkm.phone,
-      isNaikKelas: umkm.isNaikKelas,
-    })
-    .from(products)
-    .innerJoin(umkm, eq(products.umkmId, umkm.id))
-    .leftJoin(categoriesTable, eq(products.categoryId, categoriesTable.id))
-    .where(eq(umkm.status, "Bermitra"))
-    .orderBy(desc(products.createdAt))
-    .limit(10);
-
-  // FETCH BERITA TERBARU
-  const beritaTerbaru = await db
-    .select()
-    .from(news)
-    .where(eq(news.status, "Published"))
-    .orderBy(desc(news.createdAt))
-    .limit(6);
-
-  // format Rupiah
+  // Format
   const formatRupiah = (val: number | null) => {
     if (!val) return "Rp 0";
     return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(val);
   };
 
-  // format tanggal
   const formatDate = (dateValue: string | number | Date | null) => {
     if (!dateValue) return "-";
     const date = new Date(typeof dateValue === "number" ? dateValue * 1000 : dateValue);
     return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
   };
 
-  // Kategori Produk
-  // const categories = [
-  //   { name: "Kuliner", count: "1.2k+ Produk" },
-  //   { name: "Fashion", count: "800+ Produk" },
-  //   { name: "Kerajinan", count: "450+ Produk" },
-  //   { name: "Kecantikan", count: "300+ Produk" },
-  //   { name: "Pertanian", count: "250+ Produk" },
-  //   { name: "Jasa", count: "400+ Produk" },
-  // ];
 
   return (
     <div className="bg-surface min-h-screen">
-      <style>{`
+      {/* <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -148,7 +140,7 @@ export default async function HomePage() {
         .animate-marquee:hover {
           animation-play-state: paused;
         }
-      `}</style>
+      `}</style> */}
 
       {/* BANNER */}
       {activeBanners.length > 0 && <BannerCarousel banners={activeBanners} />}
@@ -209,135 +201,167 @@ export default async function HomePage() {
 
 
       {/* KPI SECTION */}
-      <section className="relative py-12 bg-white border-y border-gray-100 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-30 pointer-events-none" />
+      <section className="relative py-10 sm:py-16 bg-linear-to-b from-teal-light/10 via-white to-white overflow-hidden border-y border-teal-light/30">
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="absolute inset-0 bg-[radial-gradient(#34908B_1px,transparent_1px)] bg-size-[20px_20px] opacity-[0.07] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-72 h-72 bg-teal-light/30 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          
+          <div className="mb-6 sm:mb-8 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-primary bg-teal-light/30 px-3 py-1 rounded-full border border-teal-medium/30">
+                Statistik Terkini
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mt-2">
+                Dampak & Portal UMKM
+              </h2>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-white px-3 py-1.5 rounded-full border border-teal-light/50 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              UMKM Aktif
+            </div>
+          </div>
+
+          {/* responsive*/}
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
             {stats.map((stat, i) => (
               <div
                 key={i}
-                className="group relative bg-surface hover:bg-white p-6 rounded-3xl border border-gray-100/90 shadow-2xs hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary to-teal-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                className="snap-center shrink-0 w-[80vw] sm:w-auto group relative bg-white/80 backdrop-blur-md p-6 rounded-4xl border border-teal-light/40 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+              >
+                
+                <div className="absolute top-0 left-6 right-6 h-0.75 bg-linear-to-r from-primary via-teal-medium to-teal-light rounded-b-full opacity-80 group-hover:opacity-100 transition-opacity" />
 
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-teal-light/70 to-teal-light/20 text-primary flex items-center justify-center shrink-0 shadow-xs group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                    <Icon path={stat.icon} size={1.2} />
+                {/* watermark icon */}
+                <div className="absolute -bottom-4 -right-4 text-teal-light/20 group-hover:text-primary/10 group-hover:scale-110 transition-all duration-500 pointer-events-none">
+                  <Icon path={stat.icon} size={5} />
+                </div>
+
+                <div className="flex items-center justify-between gap-4 mb-6 relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-light/30 text-primary flex items-center justify-center shrink-0 border border-teal-medium/20 group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
+                    <Icon path={stat.icon} size={1.1} />
                   </div>
 
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-light/40 text-primary border border-teal-light/60">
-                    Live Data
+                  <span className="text-[14px] font-semibold text-teal-medium uppercase tracking-wider">
+                    #{i + 1}
                   </span>
                 </div>
 
-                <div>
-                  <div className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight group-hover:text-primary transition-colors">
+                <div className="relative z-10 space-y-1">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight group-hover:text-primary transition-colors">
                     {stat.value.toLocaleString("id-ID")}
                   </div>
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     {stat.title}
-                  </div>
+                  </p>
                 </div>
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
 
 
-
-      {/* <section className="py-14 px-6 max-w-7xl mx-auto">
-        <div className="text-center space-y-2 mb-10">
-          <span className="text-primary font-bold text-xs tracking-widest uppercase">Kategori Produk</span>
-          <h2 className="text-3xl font-extrabold text-gray-800">Cari Berdasarkan Kategori</h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((cat, idx) => (
-            <Link
-              key={idx}
-              href={`/katalog?category=${cat.name}`}
-              className="bg-white p-5 rounded-3xl border border-gray-100 hover:border-primary text-center space-y-2 group shadow-2xs hover:shadow-md transition-all"
-            >
-              <div className="text-3xl group-hover:scale-110 transition-transform">{cat.icon}</div>
-              <div className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors">{cat.name}</div>
-              <div className="text-[11px] text-gray-400 font-medium">{cat.count}</div>
-            </Link>
-          ))}
-        </div>
-      </section> */}
-
-
-
       {/* PRODUK UMKM BERMITRA */}
-      <section className="py-16 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <section className="py-12 sm:py-20 bg-linear-to-b from-white via-teal-light/10 to-white border-y border-teal-light/30 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[radial-gradient(#34908B_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.05] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative z-10">
           <div className="space-y-2">
-            <span className="text-primary font-bold text-xs tracking-widest uppercase">Kualitas Terjamin</span>
-            <h2 className="text-3xl font-extrabold text-gray-800">Produk UMKM Bermitra</h2>
-            <p className="text-gray-500 text-sm max-w-xl">
+            <span className="text-[10px] font-bold tracking-widest text-primary uppercase bg-teal-light/30 px-3.5 py-1.5 rounded-full border border-teal-medium/30 inline-flex items-center gap-1.5">
+              <Icon path={mdiHandshakeOutline} size={0.55} className="text-primary" />
+              Kualitas Terjamin
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+              Produk UMKM Bermitra
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm max-w-xl leading-relaxed">
               Koleksi produk resmi dari UMKM yang telah terverifikasi dan secara aktif bermitra dengan Pemerintah Kabupaten Bekasi.
             </p>
           </div>
+
           <Link
             href="/katalog"
-            className="text-primary font-semibold hover:text-primary-hover transition-colors flex items-center gap-1.5 text-sm group"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-primary hover:text-[#2b7773] bg-teal-light/20 hover:bg-teal-light/40 px-5 py-2.5 rounded-full border border-teal-medium/40 shadow-xs hover:shadow-md transition-all group shrink-0 active:scale-95"
           >
             <span>Lihat Semua Katalog</span>
-            <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1" />
+            <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1 text-primary" />
           </Link>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="w-full overflow-hidden">
-            {produkBermitra.length > 0 ? (
-              <div className="animate-marquee gap-6">
-                {[...produkBermitra, ...produkBermitra].map((prod, idx) => (
+        {/* Marquee */}
+        <div className="w-full relative group">
+          <div className="absolute top-0 bottom-0 left-0 w-8 sm:w-20 bg-linear-to-r from-white to-transparent z-20 pointer-events-none" />
+          <div className="absolute top-0 bottom-0 right-0 w-8 sm:w-20 bg-linear-to-l from-white to-transparent z-20 pointer-events-none" />
+
+          {produkBermitra.length > 0 ? (
+            <div className="flex overflow-x-auto scrollbar-none py-4 px-4 sm:px-8 hover:[&>div]:[animation-play-state:paused]">
+              
+              <div className="flex gap-5 shrink-0 animate-marquee [animation-duration:40s] group-hover:[animation-play-state:paused]">
+                {[
+                  ...produkBermitra,
+                  ...produkBermitra,
+                  ...produkBermitra,
+                  ...produkBermitra,
+                  ...produkBermitra,
+                  ...produkBermitra,
+                ].map((prod, idx) => (
                   <div
-                    key={`bermitra-${prod.id}-${idx}`}
-                    className="w-72 sm:w-80 bg-surface rounded-3xl overflow-hidden shadow-2xs border border-gray-100 hover:shadow-md transition-all group flex flex-col"
+                    key={`bermitra-1-${prod.id}-${idx}`}
+                    className="w-72 sm:w-80 bg-white/80 backdrop-blur-md rounded-4xl overflow-hidden shadow-lg shadow-primary/5 border border-teal-light/40 hover:border-teal-medium hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 flex flex-col shrink-0 group/card"
                   >
-                    <div className="aspect-4/3 bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                    {/* Product Image Box */}
+                    <div className="aspect-4/3 bg-teal-light/10 relative overflow-hidden flex items-center justify-center">
                       {prod.imageUrl ? (
                         <img
                           src={prod.imageUrl}
                           alt={prod.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
                         />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-xs font-medium gap-1">
-                          <Icon path={mdiImageOffOutline} size={1.2} />
-                          <span>Tanpa Foto</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center text-teal-medium/60 text-xs font-medium gap-1.5">
+                          <Icon path={mdiImageOffOutline} size={1.5} className="text-teal-light" />
+                          <span>Foto tidak tersedia</span>
                         </div>
                       )}
-                      <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xs uppercase tracking-wider flex items-center gap-1">
-                        <Icon path={mdiHandshake} size={0.6} />
+                      
+                      {/* Partner Badge */}
+                      <div className="absolute top-3 left-3 bg-primary/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider flex items-center gap-1">
+                        <Icon path={mdiHandshakeOutline} size={0.55} />
                         Bermitra
                       </div>
                     </div>
 
-                    <div className="p-5 flex flex-col grow">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
-                        {prod.category || "Umum"}
-                      </span>
-                      <h3 className="text-base font-bold text-gray-800 line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                        {prod.name}
-                      </h3>
-                      <div className="text-xs text-gray-500 flex items-center gap-1 mb-3">
-                        <Icon path={mdiStorefrontOutline} size={0.65} className="text-gray-400 shrink-0" />
-                        <span className="line-clamp-1 font-medium">{prod.umkmName}</span>
+                    {/* Card Body */}
+                    <div className="p-5 flex flex-col grow justify-between space-y-4">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                          {prod.category || "Umum"}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-semibold text-slate-800 line-clamp-1 group-hover/card:text-primary transition-colors">
+                          {prod.name}
+                        </h3>
+                        <div className="text-xs text-slate-500 flex items-center gap-1.5 pt-0.5">
+                          <Icon path={mdiStorefrontOutline} size={0.65} className="text-teal-medium shrink-0" />
+                          <span className="line-clamp-1 font-medium">{prod.umkmName}</span>
+                        </div>
                       </div>
 
-                      <div className="mt-auto pt-3 border-t border-gray-200/50 space-y-3">
-                        <div>
-                          <span className="text-[10px] text-gray-400 font-medium block">Harga</span>
-                          <span className="text-base font-extrabold text-gray-900">{formatRupiah(prod.price)}</span>
+                      <div className="pt-3 border-t border-slate-100 space-y-3">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-[10px] text-slate-400 font-medium">Harga</span>
+                          <span className="text-base font-extrabold text-primary">
+                            {formatRupiah(prod.price)}
+                          </span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
                           <Link
                             href={`/katalog/${prod.slug ?? prod.id}`}
-                            className="w-full py-2 px-3 bg-white border border-gray-200 text-gray-700 hover:border-primary hover:text-primary rounded-full text-xs font-semibold text-center transition-all"
+                            className="w-full py-2 px-3 bg-white border border-teal-light/60 text-slate-700 hover:border-primary hover:text-primary rounded-full text-xs font-semibold text-center transition-all shadow-xs active:scale-95"
                           >
                             Detail
                           </Link>
@@ -346,13 +370,13 @@ export default async function HomePage() {
                               href={`https://wa.me/${prod.whatsapp}?text=Halo%20${encodeURIComponent(prod.umkmName)},%20saya%20tertarik%20dengan%20produk%20${encodeURIComponent(prod.name)}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-full py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                              className="w-full py-2 px-3 bg-primary hover:bg-[#2b7773] text-white rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-xs shadow-primary/20 active:scale-95"
                             >
                               <Icon path={mdiWhatsapp} size={0.65} />
                               <span>Beli</span>
                             </a>
                           ) : (
-                            <button disabled className="w-full py-2 px-3 bg-gray-200 text-gray-400 rounded-full text-xs font-semibold text-center cursor-not-allowed">
+                            <button disabled className="w-full py-2 px-3 bg-slate-100 text-slate-400 rounded-full text-xs font-semibold text-center cursor-not-allowed">
                               Beli
                             </button>
                           )}
@@ -362,84 +386,118 @@ export default async function HomePage() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-10 text-gray-400">Belum ada produk UMKM Bermitra.</div>
-            )}
-          </div>
+
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400 text-sm font-medium bg-white/50 rounded-3xl border border-dashed border-teal-light/50 max-w-xl mx-auto">
+              Belum ada produk UMKM Bermitra yang ditampilkan.
+            </div>
+          )}
         </div>
       </section>
 
 
 
       {/* PRODUK NAIK KELAS */}
-      <section className="py-16 bg-surface">
-        <div className="max-w-7xl mx-auto px-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <section className="py-12 sm:py-20 bg-gradient-to-b from-white via-[#A5E9DD]/10 to-white border-y border-[#A5E9DD]/30 overflow-hidden relative">
+        {/* Decorative Background Grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(#34908B_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.05] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative z-10">
           <div className="space-y-2">
-            <span className="text-teal-medium font-bold text-xs tracking-widest uppercase">Akselerasi Usaha</span>
-            <h2 className="text-3xl font-extrabold text-gray-800">Produk UMKM Naik Kelas</h2>
-            <p className="text-gray-500 text-sm max-w-xl">
+            <span className="text-[10px] font-bold tracking-widest text-[#34908B] uppercase bg-[#A5E9DD]/30 px-3.5 py-1.5 rounded-full border border-[#6FBEB2]/30 inline-flex items-center gap-1.5">
+              <Icon path={mdiTrendingUp} size={0.55} className="text-[#34908B]" />
+              Akselerasi Usaha
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+              Produk UMKM Naik Kelas
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm max-w-xl leading-relaxed">
               Jajaran produk unggulan dari pelaku UMKM yang telah berhasil meningkatkan standar mutu dan sertifikasi usaha.
             </p>
           </div>
+
           <Link
             href="/katalog"
-            className="text-primary font-semibold hover:text-primary-hover transition-colors flex items-center gap-1.5 text-sm group"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#34908B] hover:text-[#2b7773] bg-[#A5E9DD]/20 hover:bg-[#A5E9DD]/40 px-5 py-2.5 rounded-full border border-[#6FBEB2]/40 shadow-xs hover:shadow-md transition-all group shrink-0 active:scale-95"
           >
             <span>Lihat Semua Katalog</span>
-            <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1" />
+            <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1 text-[#34908B]" />
           </Link>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="w-full overflow-hidden">
-            {produkNaikKelas.length > 0 ? (
-              <div className="animate-marquee gap-6">
-                {[...produkNaikKelas, ...produkNaikKelas].map((prod, idx) => (
+        {/* Marquee Container with Interactive Drag/Scroll */}
+        <div className="w-full relative group">
+          {/* Left & Right Gradient Fades for Smooth Edges */}
+          <div className="absolute top-0 bottom-0 left-0 w-8 sm:w-20 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none" />
+          <div className="absolute top-0 bottom-0 right-0 w-8 sm:w-20 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none" />
+
+          {produkNaikKelas.length > 0 ? (
+            <div className="flex overflow-x-auto scrollbar-none py-4 px-4 sm:px-8 hover:[&>div]:[animation-play-state:paused]">
+              
+              {/* Infinite Marquee Track (Duplikasi 6x untuk continuous loop) */}
+              <div className="flex gap-5 shrink-0 animate-marquee group-hover:[animation-play-state:paused]">
+                {[
+                  ...produkNaikKelas,
+                  ...produkNaikKelas,
+                  ...produkNaikKelas,
+                  ...produkNaikKelas,
+                  ...produkNaikKelas,
+                  ...produkNaikKelas,
+                ].map((prod, idx) => (
                   <div
-                    key={`naikkelas-${prod.id}-${idx}`}
-                    className="w-72 sm:w-80 bg-white rounded-3xl overflow-hidden shadow-2xs border border-gray-100 hover:shadow-md transition-all group flex flex-col"
+                    key={`naikkelas-1-${prod.id}-${idx}`}
+                    className="w-72 sm:w-80 bg-white/80 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-lg shadow-[#34908B]/5 border border-[#A5E9DD]/40 hover:border-[#6FBEB2] hover:shadow-xl hover:shadow-[#34908B]/10 hover:-translate-y-1 transition-all duration-300 flex flex-col shrink-0 group/card"
                   >
-                    <div className="aspect-4/3 bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                    {/* Product Image Box */}
+                    <div className="aspect-[4/3] bg-[#A5E9DD]/10 relative overflow-hidden flex items-center justify-center">
                       {prod.imageUrl ? (
                         <img
                           src={prod.imageUrl}
                           alt={prod.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
                         />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-xs font-medium gap-1">
-                          <Icon path={mdiImageOffOutline} size={1.2} />
-                          <span>Tanpa Foto</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center text-[#6FBEB2]/60 text-xs font-medium gap-1.5">
+                          <Icon path={mdiImageOffOutline} size={1.5} className="text-[#A5E9DD]" />
+                          <span>Foto tidak tersedia</span>
                         </div>
                       )}
-                      <div className="absolute top-3 left-3 bg-teal-medium text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xs uppercase tracking-wider flex items-center gap-1">
-                        <Icon path={mdiTrendingUp} size={0.6} />
+                      
+                      {/* Naik Kelas Badge */}
+                      <div className="absolute top-3 left-3 bg-[#34908B]/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider flex items-center gap-1">
+                        <Icon path={mdiTrendingUp} size={0.55} />
                         Naik Kelas
                       </div>
                     </div>
 
-                    <div className="p-5 flex flex-col grow">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-teal-medium mb-1">
-                        {prod.category || "Umum"}
-                      </span>
-                      <h3 className="text-base font-bold text-gray-800 line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                        {prod.name}
-                      </h3>
-                      <div className="text-xs text-gray-500 flex items-center gap-1 mb-3">
-                        <Icon path={mdiStorefrontOutline} size={0.65} className="text-gray-400 shrink-0" />
-                        <span className="line-clamp-1 font-medium">{prod.umkmName}</span>
+                    {/* Card Body */}
+                    <div className="p-5 flex flex-col grow justify-between space-y-4">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#34908B]">
+                          {prod.category || "Umum"}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-semibold text-slate-800 line-clamp-1 group-hover/card:text-[#34908B] transition-colors">
+                          {prod.name}
+                        </h3>
+                        <div className="text-xs text-slate-500 flex items-center gap-1.5 pt-0.5">
+                          <Icon path={mdiStorefrontOutline} size={0.65} className="text-[#6FBEB2] shrink-0" />
+                          <span className="line-clamp-1 font-medium">{prod.umkmName}</span>
+                        </div>
                       </div>
 
-                      <div className="mt-auto pt-3 border-t border-gray-100 space-y-3">
-                        <div>
-                          <span className="text-[10px] text-gray-400 font-medium block">Harga</span>
-                          <span className="text-base font-extrabold text-gray-900">{formatRupiah(prod.price)}</span>
+                      <div className="pt-3 border-t border-slate-100 space-y-3">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-[10px] text-slate-400 font-medium">Harga</span>
+                          <span className="text-base font-extrabold text-[#34908B]">
+                            {formatRupiah(prod.price)}
+                          </span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
                           <Link
                             href={`/katalog/${prod.slug ?? prod.id}`}
-                            className="w-full py-2 px-3 bg-surface border border-gray-200 text-gray-700 hover:border-primary hover:text-primary rounded-full text-xs font-semibold text-center transition-all"
+                            className="w-full py-2 px-3 bg-white border border-[#A5E9DD]/60 text-slate-700 hover:border-[#34908B] hover:text-[#34908B] rounded-full text-xs font-semibold text-center transition-all shadow-xs active:scale-95"
                           >
                             Detail
                           </Link>
@@ -448,13 +506,13 @@ export default async function HomePage() {
                               href={`https://wa.me/${prod.whatsapp}?text=Halo%20${encodeURIComponent(prod.umkmName)},%20saya%20tertarik%20dengan%20produk%20${encodeURIComponent(prod.name)}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-full py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all"
+                              className="w-full py-2 px-3 bg-[#34908B] hover:bg-[#2b7773] text-white rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-xs shadow-[#34908B]/20 active:scale-95"
                             >
                               <Icon path={mdiWhatsapp} size={0.65} />
                               <span>Beli</span>
                             </a>
                           ) : (
-                            <button disabled className="w-full py-2 px-3 bg-gray-200 text-gray-400 rounded-full text-xs font-semibold text-center cursor-not-allowed">
+                            <button disabled className="w-full py-2 px-3 bg-slate-100 text-slate-400 rounded-full text-xs font-semibold text-center cursor-not-allowed">
                               Beli
                             </button>
                           )}
@@ -464,10 +522,13 @@ export default async function HomePage() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-10 text-gray-400">Belum ada produk UMKM Naik Kelas.</div>
-            )}
-          </div>
+
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400 text-sm font-medium bg-white/50 rounded-3xl border border-dashed border-[#A5E9DD]/50 max-w-xl mx-auto">
+              Belum ada produk UMKM Naik Kelas yang ditampilkan.
+            </div>
+          )}
         </div>
       </section>
 
