@@ -21,7 +21,7 @@ export async function createBanner(formData: FormData) {
       return { success: false, message: "Judul dan gambar wajib diisi!" };
     }
 
-    // Upload file ke Turso 
+    // Upload file ke Turso
     const uploadFormData = new FormData();
     uploadFormData.append("file", imageFile);
 
