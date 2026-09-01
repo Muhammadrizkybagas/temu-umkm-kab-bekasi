@@ -5,7 +5,7 @@ import { banners } from "@/db/schema";
 import { logActivity } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { put } from "@vercel/blob";
+import { uploadFileAction } from "@/app/actions/upload";
 
 export async function createBanner(formData: FormData) {
   try {
@@ -21,28 +21,17 @@ export async function createBanner(formData: FormData) {
       return { success: false, message: "Judul dan gambar wajib diisi!" };
     }
 
-    const MAX_SIZE = 3 * 1024 * 1024;
-    if (imageFile.size > MAX_SIZE) {
-      return { success: false, message: "Ukuran file gambar melebihi batas maksimal 3 MB." };
+    // Upload file ke Turso 
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", imageFile);
+
+    const uploadResult = await uploadFileAction(uploadFormData);
+
+    if ("error" in uploadResult) {
+      return { success: false, message: uploadResult.error };
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp", "image/heic", "image/heif"];
-    if (imageFile.type && !allowedTypes.includes(imageFile.type)) {
-      const ext = imageFile.name.split(".").pop()?.toLowerCase();
-      if (!["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(ext || "")) {
-        return { success: false, message: "Format gambar tidak didukung! Gunakan PNG, JPG, JPEG, HEIC, atau WEBP." };
-      }
-    }
-
-    
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const filename = `banner-${uniqueSuffix}-${imageFile.name.replace(/\s/g, "_")}`;
-    
-    const blob = await put(filename, imageFile, {
-      access: "public",
-    });
-
-    const imageUrl = blob.url;
+    const imageUrl = uploadResult.url; 
 
     await db.insert(banners).values({
       title,
