@@ -166,6 +166,12 @@ export const umkmPartnersRelations = relations(umkmPartners, ({ one }) => ({
 }));
 
 
-
+// Perluasan untuk media
+export const media = sqliteTable('media', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  data: text('data').notNull(),        
+  mimeType: text('mime_type').notNull(),  
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+});
 
 
