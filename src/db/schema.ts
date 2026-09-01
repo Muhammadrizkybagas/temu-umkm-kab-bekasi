@@ -1,6 +1,5 @@
 import { sqliteTable, text, integer, real, primaryKey } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
-import { pgTable, timestamp } from "drizzle-orm/pg-core";
 import { relations } from 'drizzle-orm';
 
 // Users
