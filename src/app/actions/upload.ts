@@ -4,7 +4,12 @@ import { db } from '@/db';
 import { media } from '@/db/schema';
 import { logActivity } from '@/lib/logger';
 
-export async function uploadFileAction(formData: FormData) {
+export async function uploadFileAction(
+  formData: FormData
+): Promise<
+  | { success: true; url: string; id: string | number }
+  | { error: string }
+> {
   try {
     const file = formData.get('file');
 
@@ -16,10 +21,10 @@ export async function uploadFileAction(formData: FormData) {
       return { error: 'Harap unggah file gambar (JPG, PNG, WEBP, GIF).' };
     }
 
-    // Batasi ukuran gambar maksimal 2MB agar DB Turso tetap ringan
+    // Batasi ukuran gambar maksimal 2MB
     const MAX_SIZE_BYTES = 2 * 1024 * 1024;
     if (file.size > MAX_SIZE_BYTES) {
-      return { error: 'Ukuran file terlalu besar. Maksimal ukuran gambar adalah 2MB.' };
+      return { error: 'Ukuran file terlalu besar. Maksimal 2MB.' };
     }
 
     // Convert file ke Base64
@@ -27,7 +32,7 @@ export async function uploadFileAction(formData: FormData) {
     const buffer = Buffer.from(bytes);
     const base64Data = buffer.toString('base64');
 
-    // Simpan ke database Turso dan ambil ID otomatis yang dihasilkan
+    // Menggunakan .returning() karena resmi didukung Turso & Drizzle
     const [insertedMedia] = await db
       .insert(media)
       .values({
@@ -36,9 +41,18 @@ export async function uploadFileAction(formData: FormData) {
       })
       .returning({ id: media.id });
 
+    if (!insertedMedia?.id) {
+      return { error: 'Gagal mendapatkan ID media dari database' };
+    }
+
     const publicUrl = `/api/media/${insertedMedia.id}`;
 
-    await logActivity('CREATE', `Mengunggah media baru ke Turso: ${file.name}`);
+    // Non-blocking logging: Jika logActivity error, upload gambar TIDAK dibatalkan
+    try {
+      await logActivity('CREATE', `Mengunggah media baru: ${file.name}`);
+    } catch (e) {
+      console.warn('logActivity gagal, melanjutkan upload:', e);
+    }
 
     return { success: true, url: publicUrl, id: insertedMedia.id };
   } catch (error: any) {
