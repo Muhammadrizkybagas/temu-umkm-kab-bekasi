@@ -81,7 +81,7 @@ export default function TambahProdukPage() {
   const selectedUmkm = umkms.find((u) => u.id === umkmId);
   const selectedCategory = categories.find((c) => c.id === categoryId);
 
-  // upload gambar
+// upload gambar
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -93,11 +93,11 @@ export default function TambahProdukPage() {
     try {
       const res = await uploadFileAction(formData);
 
-      if (res.error) {
+      if ('error' in res && res.error) {
         throw new Error(res.error);
       }
 
-      if (res.url) {
+      if ('url' in res && res.url) {
         setImageUrl(res.url);
       }
     } catch (err: any) {

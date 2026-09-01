@@ -144,8 +144,11 @@ export default function EditProductPage({
 
       const res = await uploadFileAction(formData);
 
-      if (res.error) throw new Error(res.error);
-      if (res.url) {
+      if ('error' in res && res.error) {
+        throw new Error(res.error);
+      }
+
+      if ('url' in res && res.url) {
         setForm((prev) => ({ ...prev, imageUrl: res.url }));
       }
     } catch (err: any) {
