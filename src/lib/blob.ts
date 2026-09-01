@@ -1,19 +1,29 @@
-import { put } from '@vercel/blob';
+import { db } from '@/db';
+import { media } from '@/db/schema';
 
 export async function uploadToBlob(file: File | null): Promise<string | null> {
   if (!file || file.size === 0) return null;
 
-  
+  // Jika input sudah berupa string URL (bukan File)
   if (typeof file === 'string') return file;
 
   try {
-    const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-    const blob = await put(filename, file, {
-      access: 'public',
-    });
-    return blob.url;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Data = buffer.toString('base64');
+
+    // Simpan ke database Turso
+    const [insertedMedia] = await db
+      .insert(media)
+      .values({
+        data: base64Data,
+        mimeType: file.type || 'image/jpeg',
+      })
+      .returning({ id: media.id });
+
+    return `/api/media/${insertedMedia.id}`;
   } catch (error) {
-    console.error("Gagal upload ke Vercel Blob:", error);
+    console.error("Gagal upload gambar ke Turso DB:", error);
     throw new Error("Gagal mengupload file gambar.");
   }
 }

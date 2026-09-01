@@ -1,83 +1,42 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { put, del } from '@vercel/blob';
-
+import { db } from '@/db';
+import { media } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export interface StorageProvider {
   upload(file: Buffer, fileName: string, mimeType?: string): Promise<string>;
   delete(filePath: string): Promise<boolean>;
 }
 
+export class TursoStorageProvider implements StorageProvider {
+  async upload(file: Buffer, _fileName: string, mimeType?: string): Promise<string> {
+    const base64Data = file.toString('base64');
+    const type = mimeType || 'image/jpeg';
 
-export class LocalStorageProvider implements StorageProvider {
-  private uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    const [insertedMedia] = await db
+      .insert(media)
+      .values({
+        data: base64Data,
+        mimeType: type,
+      })
+      .returning({ id: media.id });
 
-  async upload(file: Buffer, fileName: string, _mimeType?: string): Promise<string> {
-    await fs.mkdir(this.uploadDir, { recursive: true });
-
-    const cleanFileName = path
-      .basename(fileName)
-      .toLowerCase()
-      .replace(/[^a-z0-9.-]/g, '-');
-
-    const uniqueName = `${Date.now()}-${cleanFileName}`;
-    const filePath = path.join(this.uploadDir, uniqueName);
-
-    await fs.writeFile(filePath, file);
-
-    return `/uploads/${uniqueName}`;
+    return `/api/media/${insertedMedia.id}`;
   }
 
   async delete(fileUrl: string): Promise<boolean> {
     try {
-      const fileName = path.basename(fileUrl);
-      const filePath = path.join(this.uploadDir, fileName);
+      // fileUrl berbentuk "/api/media/uuid-id"
+      const mediaId = fileUrl.split('/').pop();
+      if (!mediaId) return false;
 
-      await fs.unlink(filePath);
+      await db.delete(media).where(eq(media.id, mediaId));
       return true;
     } catch {
       return false;
     }
   }
 }
-
-// Vercel Blob Storage
-export class VercelBlobStorageProvider implements StorageProvider {
-  async upload(file: Buffer, fileName: string, _mimeType?: string): Promise<string> {
-    const cleanFileName = path
-      .basename(fileName)
-      .toLowerCase()
-      .replace(/[^a-z0-9.-]/g, '-');
-
-    const uniqueName = `uploads/${Date.now()}-${cleanFileName}`;
-
-    const blob = await put(uniqueName, file, {
-      access: 'public',
-    });
-
-    return blob.url;
-  }
-
-  async delete(fileUrl: string): Promise<boolean> {
-    try {
-      await del(fileUrl);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-}
-
 
 export function getStorageProvider(): StorageProvider {
-  
-  const driver = process.env.STORAGE_DRIVER || (process.env.VERCEL ? 'vercel-blob' : 'local');
-
-  switch (driver) {
-    case 'vercel-blob':
-      return new VercelBlobStorageProvider();
-    case 'local':
-    default:
-      return new LocalStorageProvider();
-  }
+  return new TursoStorageProvider();
 }
