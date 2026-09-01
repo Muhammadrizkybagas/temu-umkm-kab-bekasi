@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { db } from '@/db';
+import { media } from '@/db/schema';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,22 +24,32 @@ export async function POST(req: Request) {
       );
     }
 
-    
-    const fileExt = file.name.split('.').pop() || 'jpg';
-    const fileName = `umkm-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+    const MAX_SIZE_BYTES = 2 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      return NextResponse.json(
+        { error: 'Ukuran file terlalu besar. Maksimal 2MB.' },
+        { status: 400 }
+      );
+    }
 
-    
-    const blob = await put(fileName, file, {
-      access: 'public',
-    });
+    // Convert file ke Base64
+    const bytes = await file.arrayBuffer();
+    const base64Data = Buffer.from(bytes).toString('base64');
 
-    return NextResponse.json({ url: blob.url }, { status: 201 });
+    // Simpan ke Turso
+    const [insertedMedia] = await db
+      .insert(media)
+      .values({
+        data: base64Data,
+        mimeType: file.type,
+      })
+      .returning({ id: media.id });
 
+    const publicUrl = `/api/media/${insertedMedia.id}`;
+
+    return NextResponse.json({ url: publicUrl }, { status: 201 });
   } catch (error: any) {
-    console.error('=== DETAILED UPLOAD ERROR ===');
-    console.error(error?.stack || error);
-    console.error('============================');
-
+    console.error('Error uploading via API route:', error);
     return NextResponse.json(
       { error: error?.message || 'Terjadi kesalahan internal pada server upload' },
       { status: 500 }
