@@ -5,16 +5,16 @@ import { eq } from 'drizzle-orm';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const mediaId = params.id;
+    
+    const { id: mediaId } = await params;
 
     if (!mediaId) {
       return new NextResponse('Bad Request: Media ID dibutuhkan', { status: 400 });
     }
 
-    // Ambil data gambar dari tabel media
     const item = await db
       .select({
         data: media.data,
@@ -28,10 +28,8 @@ export async function GET(
       return new NextResponse('Gambar tidak ditemukan', { status: 404 });
     }
 
-    // Convert string Base64 kembali ke binary Buffer
     const imageBuffer = Buffer.from(item.data, 'base64');
 
-    // Return binary gambar dengan header caching agar performa cepat
     return new NextResponse(imageBuffer, {
       status: 200,
       headers: {

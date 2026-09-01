@@ -1,50 +1,48 @@
-'use server';
-
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { media } from '@/db/schema';
-import { logActivity } from '@/lib/logger';
+import { eq } from 'drizzle-orm';
 
-export async function uploadFileAction(formData: FormData) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> }
+) {
   try {
-    const file = formData.get('file');
+    // wajib di-await di Next.js 15+
+    const params = await props.params;
+    const mediaId = params?.id;
 
-    if (!file || !(file instanceof File)) {
-      return { error: 'File tidak ditemukan atau format tidak valid' };
+    if (!mediaId) {
+      return new NextResponse('Bad Request: Media ID dibutuhkan', { status: 400 });
     }
 
-    if (!file.type.startsWith('image/')) {
-      return { error: 'Harap unggah file gambar (JPG, PNG, WEBP, GIF).' };
-    }
-
-    // maksimal 2mb
-    const MAX_SIZE_BYTES = 2 * 1024 * 1024;
-    if (file.size > MAX_SIZE_BYTES) {
-      return { error: 'Ukuran file terlalu besar. Maksimal ukuran gambar adalah 2MB.' };
-    }
-
-    // konversi jadi string
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Data = buffer.toString('base64');
-
-    
-    const [insertedMedia] = await db
-      .insert(media)
-      .values({
-        data: base64Data,
-        mimeType: file.type,
+    // Ambil data gambar dari tabel media
+    const item = await db
+      .select({
+        data: media.data,
+        mimeType: media.mimeType,
       })
-      .returning({ id: media.id });
+      .from(media)
+      .where(eq(media.id, mediaId))
+      .get();
 
-      
-    const publicUrl = `/api/media/${insertedMedia.id}`;
+    if (!item || !item.data) {
+      return new NextResponse('Gambar tidak ditemukan', { status: 404 });
+    }
 
-    await logActivity('CREATE', `Mengunggah media baru ke Turso: ${file.name}`);
+    // Convert string Base64 kembali ke binary Buffer
+    const imageBuffer = Buffer.from(item.data, 'base64');
 
-    
-    return { url: publicUrl };
+    // Return binary gambar
+    return new NextResponse(imageBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': item.mimeType || 'image/jpeg',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    });
   } catch (error: any) {
-    console.error('Upload Action Error (Turso):', error);
-    return { error: error?.message || 'Gagal menyimpan gambar ke database Turso' };
+    console.error('Error serving media image:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
