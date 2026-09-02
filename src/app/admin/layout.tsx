@@ -41,7 +41,7 @@ export default async function AdminLayout({
 
   return (
     <AdminSidebar user={currentUser} userRole={currentUser.role}>
-      <main>{children}</main>
+      {children}
     </AdminSidebar>
   );
 }

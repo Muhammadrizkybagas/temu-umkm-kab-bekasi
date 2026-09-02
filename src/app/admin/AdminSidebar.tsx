@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Icon from "@mdi/react";
+
 import { 
   mdiMenu, 
   mdiClose, 
@@ -29,12 +30,14 @@ import {
   mdiShieldCheck,
   mdiPencil,
   mdiArrowLeft,
+  mdiChevronDown
 } from "@mdi/js";
 import Swal from "sweetalert2";
 import { updateAdminProfile } from "@/app/admin/profile/actions";
+import AdminHeader from "@/components/AdminHeader";
 
 interface UserProps {
-  id?: string;
+  id?: string; 
   name?: string;
   email?: string;
   role?: string;
@@ -42,10 +45,16 @@ interface UserProps {
 
 interface AdminSidebarProps {
   children: React.ReactNode;
-  user?: UserProps;
+  user?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+  };
   userRole?: string;
 }
 
+// 
 export default function AdminSidebar({ children, user, userRole: initialRole = "" }: AdminSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -53,6 +62,14 @@ export default function AdminSidebar({ children, user, userRole: initialRole = "
   const [rawRole, setRawRole] = useState(initialRole || user?.role || "");
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({
+    manajemenData: true, 
+    kelolaKonten: false,
+  });
+
+  const toggleSubmenu = (key: string) => {
+    setOpenSubmenus((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -155,12 +172,24 @@ export default function AdminSidebar({ children, user, userRole: initialRole = "
     }
   };
 
-  const handleLogout = async () => {
-    if (typeof window !== "undefined") localStorage.clear();
+const handleLogout = async () => {
+  try {
+    // hapus sesi
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+
+    // hapus cookie auth_token
     await fetch("/api/auth/logout", { method: "POST" });
+  } catch (error) {
+    console.error("Gagal logout dari API server:", error);
+  } finally {
+    // redirect ke halaman login
     router.push("/login");
     router.refresh();
-  };
+  }
+};
 
   const getNormalizedRole = (roleStr: string) => {
     const clean = (roleStr || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -172,281 +201,267 @@ export default function AdminSidebar({ children, user, userRole: initialRole = "
 
   const currentRole = getNormalizedRole(rawRole);
 
-  const menuItems = [
-    { label: "Dashboard", href: "/admin/dashboard", icon: mdiViewDashboardOutline, roles: ["super_admin", "admin", "kontributor_berita"] },
-    { label: "Manajemen Kategori", href: "/admin/kategori", icon: mdiFolderOutline, roles: ["super_admin", "admin"] },
-    { label: "Manajemen UMKM", href: "/admin/umkm", icon: mdiStorefrontOutline, roles: ["super_admin", "admin"] },
-    { label: "Manajemen Mitra", href: "/admin/mitra", icon: mdiHandshakeOutline, roles: ["super_admin", "admin"] },
-    { label: "Manajemen Produk", href: "/admin/produk", icon: mdiPackageVariant, roles: ["super_admin", "admin"] },
-    { label: "Manajemen Berita", href: "/admin/berita", icon: mdiNewspaperVariantOutline, roles: ["super_admin", "admin", "kontributor_berita"] },
-    { label: "Manajemen Banner", href: "/admin/banner", icon: mdiImageOutline, roles: ["super_admin", "admin", "kontributor_berita"] },
-    { label: "Manajemen User", href: "/admin/users", icon: mdiAccountMultipleOutline, roles: ["super_admin"] },
-    { label: "Kotak Masuk", href: "/admin/messages", icon: mdiMessageOutline, roles: ["super_admin", "admin"], badge: unreadCount > 0 ? unreadCount : null },
-    { label: "Pengaturan Situs", href: "/admin/settings", icon: mdiCogOutline, roles: ["super_admin", "admin"] },
-    { label: "Log Aktivitas", href: "/admin/activity-logs", icon: mdiAccountEyeOutline, roles: ["super_admin"] },
+  type MenuChild = {
+    label: string;
+    href: string;
+    icon: string;
+    roles: string[];
+  };
+
+  type MenuItem =
+    | {
+        type: "single";
+        label: string;
+        href: string;
+        icon: string;
+        roles: string[];
+        badge?: number | null;
+      }
+    | {
+        type: "group";
+        key: string;
+        label: string;
+        icon: string;
+        roles: string[];
+        children: MenuChild[];
+      };
+
+  const menuConfig: MenuItem[] = [
+    { 
+      type: "single",
+      label: "Dashboard", 
+      href: "/admin/dashboard", 
+      icon: mdiViewDashboardOutline, 
+      roles: ["super_admin", "admin", "kontributor_berita"] 
+    },
+    {
+      type: "group",
+      key: "manajemenData",
+      label: "Manajemen Data",
+      icon: mdiStorefrontOutline,
+      roles: ["super_admin", "admin"],
+      children: [
+        { label: "Manajemen Kategori", href: "/admin/kategori", icon: mdiFolderOutline, roles: ["super_admin", "admin"] },
+        { label: "Manajemen UMKM", href: "/admin/umkm", icon: mdiStorefrontOutline, roles: ["super_admin", "admin"] },
+        { label: "Manajemen Mitra", href: "/admin/mitra", icon: mdiHandshakeOutline, roles: ["super_admin", "admin"] },
+        { label: "Manajemen Produk", href: "/admin/produk", icon: mdiPackageVariant, roles: ["super_admin", "admin"] },
+      ],
+    },
+    {
+      type: "group",
+      key: "kelolaKonten",
+      label: "Kelola Konten & Web",
+      icon: mdiNewspaperVariantOutline,
+      roles: ["super_admin", "admin", "kontributor_berita"],
+      children: [
+        { label: "Manajemen Berita", href: "/admin/berita", icon: mdiNewspaperVariantOutline, roles: ["super_admin", "admin", "kontributor_berita"] },
+        { label: "Manajemen Banner", href: "/admin/banner", icon: mdiImageOutline, roles: ["super_admin", "admin", "kontributor_berita"] },
+        { label: "Pengaturan Situs", href: "/admin/settings", icon: mdiCogOutline, roles: ["super_admin", "admin"] },
+      ],
+    },
+    { 
+      type: "single",
+      label: "Manajemen User", 
+      href: "/admin/users", 
+      icon: mdiAccountMultipleOutline, 
+      roles: ["super_admin"] 
+    },
+    { 
+      type: "single",
+      label: "Kotak Masuk", 
+      href: "/admin/messages", 
+      icon: mdiMessageOutline, 
+      roles: ["super_admin", "admin"], 
+      badge: unreadCount > 0 ? unreadCount : null 
+    },
+    { 
+      type: "single",
+      label: "Log Aktivitas", 
+      href: "/admin/activity-logs", 
+      icon: mdiAccountEyeOutline, 
+      roles: ["super_admin"] 
+    },
   ];
 
-  const filteredMenu = menuItems.filter((item) => item.roles.includes(currentRole));
-
   return (
-      <div className="h-screen w-full bg-surface flex flex-col lg:flex-row overflow-hidden">
-      
-      
+    <div className="min-h-screen bg-slate-50">
+      <AdminHeader user={user} onMenuClick={() => setSidebarOpen(true)} />
       {sidebarOpen && (
         <div 
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+          onClick={() => setSidebarOpen(false)} 
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs lg:hidden"
         />
       )}
 
-      {/* sidebar main */}
+      {/* Sidebar Utama */}
       <aside className={`
         fixed inset-y-0 left-0 z-50
-        w-64 bg-white border-r border-slate-100 p-6 
-        flex flex-col justify-between 
+        w-64 bg-white border-r border-slate-100 p-5 
+        flex flex-col justify-between
         transform transition-transform duration-300 ease-in-out shadow-xl lg:shadow-none
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
         <div>
-          <div className="flex items-center justify-between mb-8">
+          {/* Logo*/}
+          <div className="flex items-center justify-between mb-6 px-1">
             <div className="flex items-center gap-3">
-              <Image src="/logo.svg" alt="Logo TEMU" width={90} height={90} className="object-contain" />
+              <Image src="/logo.svg" alt="Logo TEMU" width={80} height={80} className="object-contain" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Terintegrasi UMKM</span>
+                <span className="text-[12px] font-bold text-teal-500 uppercase tracking-wider">
+                  Terintegrasi UMKM
+                </span>
               </div>
             </div>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+              className="lg:hidden text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
             >
-              <Icon path={mdiClose} size={1} />
+              <Icon path={mdiClose} size={0.8} />
             </button>
           </div>
 
-          <nav className="space-y-1.5">
-            {filteredMenu.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-full text-[14px] font-medium transition-all ${
-                    isActive
-                      ? "bg-primary text-white shadow-md shadow-primary/20"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-primary"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon path={item.icon} size={0.85} />
-                    <span>{item.label}</span>
+          {/* Header Label */}
+          <div className="px-2 mb-3">
+            <span className="text-[12px] font-semibold tracking-wider text-slate-400 uppercase">
+              OVERVIEW
+            </span>
+          </div>
+
+          {/* Menu & Submenu */}
+          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-210px)] pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            {menuConfig.map((item) => {
+              if (!item.roles.includes(currentRole)) return null;
+
+              // Menu Utama Biasa
+              if (item.type === "single") {
+                const isActive = pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                      isActive
+                        ? "bg-teal-light/25 text-primary font-semibold"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-primary"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-1.5 rounded-lg transition-colors ${
+                        isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        <Icon path={item.icon} size={0.7} />
+                      </div>
+                      <span>{item.label}</span>
+                    </div>
+
+                    {item.badge && (
+                      <span className="px-2 py-0.5 text-[12px] font-bold rounded-full bg-red-500 text-white">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              }
+
+              // Dropdown Submenu
+              if (item.type === "group") {
+                const filteredChildren = item.children.filter((child) => child.roles.includes(currentRole));
+                if (filteredChildren.length === 0) return null;
+
+                const isExpanded = openSubmenus[item.key];
+                const hasActiveChild = filteredChildren.some((child) => pathname.startsWith(child.href));
+
+                return (
+                  <div key={item.key} className="space-y-1">
+                    {/* Header Submenu */}
+                    <button
+                      onClick={() => toggleSubmenu(item.key)}
+                      className={`w-full flex items-center justify-between px-3 text-left py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                        hasActiveChild || isExpanded
+                          ? "bg-slate-50 text-primary"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-primary"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`p-1.5 rounded-lg transition-colors ${
+                          hasActiveChild ? "bg-primary text-white" : "bg-slate-100 text-slate-500"
+                        }`}>
+                          <Icon path={item.icon} size={0.7} />
+                        </div>
+                        <span>{item.label}</span>
+                      </div>
+                      <Icon
+                        path={mdiChevronDown}
+                        size={0.75}
+                        className={`text-slate-400 transition-transform duration-300 ease-in-out ${
+                          isExpanded ? "rotate-180 text-primary" : "rotate-0"
+                        }`}
+                      />
+                    </button>
+
+                    {/* Submenu Items */}
+                    <div
+                      className={`grid transition-all duration-300 ease-in-out ${
+                        isExpanded ? "grid-rows-[1fr] opacity-100 my-1" : "grid-rows-[0fr] opacity-0 my-0"
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="pl-6 space-y-1 relative before:absolute before:left-6 before:top-2 before:bottom-2 before:w-[1.5px] before:bg-slate-200">
+                          {filteredChildren.map((child) => {
+                            const isChildActive = pathname.startsWith(child.href);
+                            return (
+                              <Link
+                                key={child.href}
+                                href={child.href}
+                                onClick={() => setSidebarOpen(false)}
+                                className={`flex items-center gap-2 px-3 py-2 text-[12px] rounded-lg font-normal transition-colors relative ${
+                                  isChildActive
+                                    ? "text-primary font-semibold bg-teal-light/20"
+                                    : "text-slate-500 hover:text-primary hover:bg-slate-50"
+                                }`}
+                              >
+                                <span
+                                  className={`w-2 h-[1.5px] rounded-full transition-colors ${
+                                    isChildActive ? "bg-primary" : "bg-slate-200"
+                                  }`}
+                                />
+                                <span>{child.label}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  {item.badge && (
-                    <span className={`px-2 py-0.5 text-[10px] font-black rounded-full ${
-                      isActive ? "bg-white text-primary" : "bg-red-500 text-white"
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
+                );
+              }
+
+              return null;
             })}
           </nav>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 rounded-full transition-all duration-200 cursor-pointer group shadow-2xs"
-        >
-          <div className="p-1 bg-red-100 group-hover:bg-red-200 rounded-full transition-colors">
-            <Icon path={mdiLogout} size={0.75} className="text-red-600" />
-          </div>
-          <span>Keluar Sistem</span>
-        </button>
+        {/* Bagian Tombol Logout */}
+        {/* <div className="shrink-0 pt-4 border-t border-slate-100">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-red-600 bg-red-50/60 hover:bg-red-100/70 hover:text-red-700 rounded-xl transition-all duration-200 cursor-pointer"
+          >
+            <div className="p-1 bg-red-100 rounded-lg">
+              <Icon path={mdiLogout} size={0.65} className="text-red-600" />
+            </div>
+            <span>Keluar Sistem</span>
+          </button>
+        </div> */}
       </aside>
 
-      {/* main konten */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64 h-screen overflow-y-auto">
-        <header className="h-16 bg-white border-b border-slate-100 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs shrink-0">
-          {/* kiri */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
-              aria-label="Toggle Menu"
-            >
-              <Icon path={sidebarOpen ? mdiClose : mdiMenu} size={1.2} />
-            </button>
-            <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-teal-600 rounded-full">
-              {roleConfig.label}
-            </span>
-          </div>
-
-          {/* kanan */}
-          <button
-            onClick={handleOpenDrawer}
-            className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all cursor-pointer"
-          >
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold text-gray-800">{userProfile.name || "Admin"}</p>
-              <p className="text-[11px] text-gray-400">{roleConfig.label}</p>
-            </div>
-            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm border border-primary/20">
-              {(userProfile.name || "A").charAt(0).toUpperCase()}
-            </div>
-          </button>
-        </header>
-
-        <main className="flex-1 p-4 sm:p-6 md:p-8">
+      <div className="lg:pl-64 pt-16 transition-all duration-300">
+        <main className="p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>
-
-      {/* profil dan edit admin */}
-      {isProfileOpen && <div onClick={() => setIsProfileOpen(false)} className="fixed inset-0 z-40 bg-black/20" />}
-
-      <aside className={`fixed top-0 right-0 h-full w-full sm:w-105 bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${isProfileOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-          <div className="flex items-center gap-2.5">
-            <Icon path={mdiAccountCircle} size={1} className="text-primary" />
-            <div>
-              <h2 className="text-base font-bold text-gray-800">
-                {isEditing ? "Edit Profil" : "Informasi Profil"}
-              </h2>
-              <p className="text-xs text-gray-400">
-                {isEditing ? "Perbarui informasi akun Anda" : "Data diri dan hak akses panel"}
-              </p>
-            </div>
-          </div>
-          <button onClick={() => setIsProfileOpen(false)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer">
-            <Icon path={mdiClose} size={0.8} />
-          </button>
-        </div>
-
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {!isEditing ? (
-            <div className="space-y-6">
-              <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 text-center space-y-3">
-                <div className="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl font-bold mx-auto shadow-md">
-                  {(userProfile.name || "A").charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-800 text-lg">{userProfile.name}</h3>
-                  <p className="text-xs text-gray-500">{userProfile.email}</p>
-                </div>
-                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${roleConfig.badge}`}>
-                  <Icon path={mdiShieldCheck} size={0.6} />
-                  {roleConfig.label}
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-3.5 bg-white border border-gray-100 rounded-xl">
-                  <p className="text-[11px] text-gray-400 font-medium">Nama Lengkap</p>
-                  <p className="text-sm font-semibold text-gray-800 mt-0.5">{userProfile.name}</p>
-                </div>
-                <div className="p-3.5 bg-white border border-gray-100 rounded-xl">
-                  <p className="text-[11px] text-gray-400 font-medium">Alamat Email</p>
-                  <p className="text-sm font-semibold text-gray-800 mt-0.5">{userProfile.email}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsEditing(true)}
-                className="w-full py-2.5 bg-primary hover:bg-[#2489b5] text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-              >
-                <Icon path={mdiPencil} size={0.7} />
-                Edit Profil Saya
-              </button>
-            </div>
-          ) : (
-            <form id="profile-form" onSubmit={handleSubmitProfile} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Nama Lengkap</label>
-                <div className="relative">
-                  <Icon path={mdiAccount} size={0.7} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-xs outline-none focus:border-primary text-gray-800"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Alamat Email</label>
-                <div className="relative">
-                  <Icon path={mdiEmail} size={0.7} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                    className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-xs outline-none focus:border-primary text-gray-800"
-                  />
-                </div>
-              </div>
-
-              <hr className="border-gray-100 my-2" />
-              <p className="text-xs font-bold text-gray-800">Ubah Kata Sandi (Opsional)</p>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Kata Sandi Baru</label>
-                <div className="relative">
-                  <Icon path={mdiLock} size={0.7} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="password"
-                    value={form.newPassword}
-                    onChange={(e) => setForm((p) => ({ ...p, newPassword: e.target.value }))}
-                    className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-xs outline-none focus:border-primary text-gray-800"
-                    placeholder="Biarkan kosong jika tidak diubah"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Konfirmasi Kata Sandi</label>
-                <div className="relative">
-                  <Icon path={mdiLock} size={0.7} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="password"
-                    value={form.confirmPassword}
-                    onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))}
-                    className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-xs outline-none focus:border-primary text-gray-800"
-                    placeholder="Ulangi kata sandi baru"
-                  />
-                </div>
-              </div>
-            </form>
-          )}
-        </div>
-
-        {/* Footer */}
-        {isEditing && (
-          <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setIsEditing(false)}
-              className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg flex items-center gap-1 cursor-pointer"
-            >
-              <Icon path={mdiArrowLeft} size={0.6} />
-              Batal
-            </button>
-            <button
-              type="submit"
-              form="profile-form"
-              disabled={submitting}
-              className="px-4 py-2 bg-primary hover:bg-[#2489b5] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              <Icon path={submitting ? mdiLoading : mdiContentSave} size={0.6} className={submitting ? "animate-spin" : ""} />
-              {submitting ? "Menyimpan..." : "Simpan Profil"}
-            </button>
-          </div>
-        )}
-      </aside>
     </div>
   );
 }

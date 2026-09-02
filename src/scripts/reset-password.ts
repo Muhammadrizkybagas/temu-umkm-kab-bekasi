@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs"; // atau 'bcrypt' sesuai library yang kamu pakai di auth
+import bcrypt from "bcryptjs"; // sesuai library di auth
 
 async function resetPassword() {
   const hashedPassword = await bcrypt.hash("13579", 10);
