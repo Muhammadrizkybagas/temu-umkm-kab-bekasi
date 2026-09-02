@@ -6,10 +6,8 @@ import { eq, like, or, count, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 
-export async function getProducts(query: string = "", page: number = 1, limit: number = 100) {
+export async function getProducts(query: string = "") {
   try {
-    const offset = (page - 1) * limit;
-
     const whereClause = query
       ? or(
           like(products.name, `%${query}%`),
@@ -37,9 +35,7 @@ export async function getProducts(query: string = "", page: number = 1, limit: n
       .leftJoin(umkm, eq(products.umkmId, umkm.id))
       .leftJoin(categories, eq(products.categoryId, categories.id))
       .where(whereClause)
-      .orderBy(desc(products.createdAt))
-      .limit(limit)
-      .offset(offset);
+      .orderBy(desc(products.createdAt)); 
 
     return dataList;
   } catch (error: any) {

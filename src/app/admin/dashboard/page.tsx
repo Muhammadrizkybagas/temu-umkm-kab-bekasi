@@ -331,51 +331,62 @@ export default async function AdminDashboardPage() {
             <p className="text-slate-400 text-[11px]">Data aktivitas UMKM terbaru akan muncul secara otomatis di sini.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs whitespace-nowrap md:whitespace-normal">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-100 text-slate-600 uppercase tracking-wider font-extrabold text-[10px]">
-                  <th className="p-4.5">Nama UMKM</th>
-                  <th className="p-4.5">Pemilik</th>
-                  <th className="p-4.5">Kecamatan</th>
-                  <th className="p-4.5">Kualifikasi</th>
-                  <th className="p-4.5">Kemitraan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {recentUmkm.map((item) => (
-                  <tr key={item.id} className="hover:bg-teal-light/10 transition-colors group">
-                    <td className="p-4.5 font-bold text-slate-900 group-hover:text-primary transition-colors">
-                      {item.name}
-                    </td>
-                    <td className="p-4.5 font-semibold text-slate-600">{item.ownerName}</td>
-                    <td className="p-4.5 font-medium text-slate-500">{item.district}</td>
-                    <td className="p-4.5">
-                      {item.isNaikKelas ? (
-                        <span className="bg-teal-light/30 text-primary text-[10px] font-medium px-3 py-1 rounded-full border border-teal-medium/40 shadow-xs inline-block">
-                          Naik Kelas
-                        </span>
-                      ) : (
-                        <span className="bg-slate-100 text-slate-600 text-[10px] font-medium px-3 py-1 rounded-full border border-slate-200/60 shadow-xs inline-block">
-                          Reguler
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4.5">
-                      {item.status === "Bermitra" ? (
-                        <span className="bg-teal-medium/20 text-primary text-[10px] font-medium px-3 py-1 rounded-full border border-teal-medium/40 shadow-xs inline-block">
-                          Bermitra
-                        </span>
-                      ) : (
-                        <span className="bg-slate-100 text-slate-600 text-[10px] font-medium px-3 py-1 rounded-full border border-slate-200/60 shadow-xs inline-block">
-                          {item.status || "Inkubator"}
-                        </span>
-                      )}
-                    </td>
+          <div className="p-4">
+            <div className="overflow-x-auto rounded-lg border border-slate-100">
+              <table className="w-full text-left text-xs border-collapse min-w-162.5">
+                <thead>
+                  <tr className="bg-primary text-white font-semibold tracking-wider text-[13px]">
+                    <th className="p-3.5 font-normal">Nama UMKM</th>
+                    <th className="p-3.5 font-normal">Pemilik</th>
+                    <th className="p-3.5 font-normal">Kecamatan</th>
+                    <th className="p-3.5 font-normal">Kualifikasi</th>
+                    <th className="p-3.5 font-normal">Kemitraan</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recentUmkm.map((item, index) => {
+                    const isEven = index % 2 === 1;
+
+                    return (
+                      <tr 
+                        key={item.id} 
+                        className={`border-b border-slate-100 transition-colors group ${
+                          isEven ? "bg-teal-light/15 hover:bg-teal-light/30" : "bg-white hover:bg-slate-50"
+                        }`}
+                      >
+                        <td className="p-3.5 font-bold text-slate-600 text-[12px] group-hover:text-primary transition-colors">
+                          {item.name}
+                        </td>
+                        <td className="p-3.5 font-medium text-[12px] text-slate-600">{item.ownerName}</td>
+                        <td className="p-3.5 font-medium text-slate-500">{item.district}</td>
+                        <td className="p-3.5">
+                          {item.isNaikKelas ? (
+                            <span className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-[12px] font-medium px-3 py-1 rounded-full border border-teal-medium/40 shadow-xs inline-block">
+                              Naik Kelas
+                            </span>
+                          ) : (
+                            <span className="bg-slate-100 text-slate-600 text-[12px] font-medium px-3 py-1 rounded-full border border-slate-200/60 shadow-xs inline-block">
+                              Reguler
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          {item.status === "Bermitra" ? (
+                            <span className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-[12px] font-medium px-3 py-1 rounded-full border border-teal-medium/40 shadow-xs inline-block">
+                              Bermitra
+                            </span>
+                          ) : (
+                            <span className="bg-slate-100 text-slate-600 text-[12px] font-medium px-3 py-1 rounded-full border border-slate-200/60 shadow-xs inline-block">
+                              {item.status || "Inkubator"}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

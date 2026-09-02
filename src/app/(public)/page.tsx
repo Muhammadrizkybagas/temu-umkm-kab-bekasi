@@ -399,14 +399,14 @@ export default async function HomePage() {
 
 
       {/* PRODUK NAIK KELAS */}
-      <section className="py-12 sm:py-20 bg-gradient-to-b from-white via-[#A5E9DD]/10 to-white border-y border-[#A5E9DD]/30 overflow-hidden relative">
+      <section className="py-12 sm:py-20 bg-linear-to-b from-white via-teal-light/10 to-white border-y border-teal-light/30 overflow-hidden relative">
         {/* Decorative Background Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(#34908B_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.05] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative z-10">
           <div className="space-y-2">
-            <span className="text-[10px] font-bold tracking-widest text-[#34908B] uppercase bg-[#A5E9DD]/30 px-3.5 py-1.5 rounded-full border border-[#6FBEB2]/30 inline-flex items-center gap-1.5">
-              <Icon path={mdiTrendingUp} size={0.55} className="text-[#34908B]" />
+            <span className="text-[10px] font-bold tracking-widest text-primary uppercase bg-teal-light/30 px-3.5 py-1.5 rounded-full border border-teal-medium/30 inline-flex items-center gap-1.5">
+              <Icon path={mdiTrendingUp} size={0.55} className="text-primary" />
               Akselerasi Usaha
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
@@ -419,18 +419,18 @@ export default async function HomePage() {
 
           <Link
             href="/katalog"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#34908B] hover:text-[#2b7773] bg-[#A5E9DD]/20 hover:bg-[#A5E9DD]/40 px-5 py-2.5 rounded-full border border-[#6FBEB2]/40 shadow-xs hover:shadow-md transition-all group shrink-0 active:scale-95"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-primary hover:text-[#2b7773] bg-teal-light/20 hover:bg-teal-light/40 px-5 py-2.5 rounded-full border border-teal-medium/40 shadow-xs hover:shadow-md transition-all group shrink-0 active:scale-95"
           >
             <span>Lihat Semua Katalog</span>
-            <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1 text-[#34908B]" />
+            <Icon path={mdiArrowRight} size={0.7} className="transition-transform group-hover:translate-x-1 text-primary" />
           </Link>
         </div>
 
         {/* Marquee Container with Interactive Drag/Scroll */}
         <div className="w-full relative group">
           {/* Left & Right Gradient Fades for Smooth Edges */}
-          <div className="absolute top-0 bottom-0 left-0 w-8 sm:w-20 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none" />
-          <div className="absolute top-0 bottom-0 right-0 w-8 sm:w-20 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none" />
+          <div className="absolute top-0 bottom-0 left-0 w-8 sm:w-20 bg-linear-to-r from-white to-transparent z-20 pointer-events-none" />
+          <div className="absolute top-0 bottom-0 right-0 w-8 sm:w-20 bg-linear-to-l from-white to-transparent z-20 pointer-events-none" />
 
           {produkNaikKelas.length > 0 ? (
             <div className="flex overflow-x-auto scrollbar-none py-4 px-4 sm:px-8 hover:[&>div]:[animation-play-state:paused]">
@@ -447,10 +447,10 @@ export default async function HomePage() {
                 ].map((prod, idx) => (
                   <div
                     key={`naikkelas-1-${prod.id}-${idx}`}
-                    className="w-72 sm:w-80 bg-white/80 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-lg shadow-[#34908B]/5 border border-[#A5E9DD]/40 hover:border-[#6FBEB2] hover:shadow-xl hover:shadow-[#34908B]/10 hover:-translate-y-1 transition-all duration-300 flex flex-col shrink-0 group/card"
+                    className="w-72 sm:w-80 bg-white/80 backdrop-blur-md rounded-4xl overflow-hidden shadow-lg shadow-primary/5 border border-teal-light/40 hover:border-teal-medium hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 flex flex-col shrink-0 group/card"
                   >
                     {/* Product Image Box */}
-                    <div className="aspect-[4/3] bg-[#A5E9DD]/10 relative overflow-hidden flex items-center justify-center">
+                    <div className="aspect-4/3 bg-teal-light/10 relative overflow-hidden flex items-center justify-center">
                       {prod.imageUrl ? (
                         <img
                           src={prod.imageUrl}
@@ -458,14 +458,14 @@ export default async function HomePage() {
                           className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out"
                         />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-[#6FBEB2]/60 text-xs font-medium gap-1.5">
-                          <Icon path={mdiImageOffOutline} size={1.5} className="text-[#A5E9DD]" />
+                        <div className="w-full h-full flex flex-col items-center justify-center text-teal-medium/60 text-xs font-medium gap-1.5">
+                          <Icon path={mdiImageOffOutline} size={1.5} className="text-teal-light" />
                           <span>Foto tidak tersedia</span>
                         </div>
                       )}
                       
                       {/* Naik Kelas Badge */}
-                      <div className="absolute top-3 left-3 bg-[#34908B]/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider flex items-center gap-1">
+                      <div className="absolute top-3 left-3 bg-primary/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider flex items-center gap-1">
                         <Icon path={mdiTrendingUp} size={0.55} />
                         Naik Kelas
                       </div>
@@ -474,14 +474,14 @@ export default async function HomePage() {
                     {/* Card Body */}
                     <div className="p-5 flex flex-col grow justify-between space-y-4">
                       <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#34908B]">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
                           {prod.category || "Umum"}
                         </span>
-                        <h3 className="text-sm sm:text-base font-semibold text-slate-800 line-clamp-1 group-hover/card:text-[#34908B] transition-colors">
+                        <h3 className="text-sm sm:text-base font-semibold text-slate-800 line-clamp-1 group-hover/card:text-primary transition-colors">
                           {prod.name}
                         </h3>
                         <div className="text-xs text-slate-500 flex items-center gap-1.5 pt-0.5">
-                          <Icon path={mdiStorefrontOutline} size={0.65} className="text-[#6FBEB2] shrink-0" />
+                          <Icon path={mdiStorefrontOutline} size={0.65} className="text-teal-medium shrink-0" />
                           <span className="line-clamp-1 font-medium">{prod.umkmName}</span>
                         </div>
                       </div>
@@ -489,7 +489,7 @@ export default async function HomePage() {
                       <div className="pt-3 border-t border-slate-100 space-y-3">
                         <div className="flex items-baseline justify-between">
                           <span className="text-[10px] text-slate-400 font-medium">Harga</span>
-                          <span className="text-base font-extrabold text-[#34908B]">
+                          <span className="text-base font-extrabold text-primary">
                             {formatRupiah(prod.price)}
                           </span>
                         </div>
@@ -497,7 +497,7 @@ export default async function HomePage() {
                         <div className="grid grid-cols-2 gap-2">
                           <Link
                             href={`/katalog/${prod.slug ?? prod.id}`}
-                            className="w-full py-2 px-3 bg-white border border-[#A5E9DD]/60 text-slate-700 hover:border-[#34908B] hover:text-[#34908B] rounded-full text-xs font-semibold text-center transition-all shadow-xs active:scale-95"
+                            className="w-full py-2 px-3 bg-white border border-teal-light/60 text-slate-700 hover:border-primary hover:text-primary rounded-full text-xs font-semibold text-center transition-all shadow-xs active:scale-95"
                           >
                             Detail
                           </Link>
@@ -506,7 +506,7 @@ export default async function HomePage() {
                               href={`https://wa.me/${prod.whatsapp}?text=Halo%20${encodeURIComponent(prod.umkmName)},%20saya%20tertarik%20dengan%20produk%20${encodeURIComponent(prod.name)}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-full py-2 px-3 bg-[#34908B] hover:bg-[#2b7773] text-white rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-xs shadow-[#34908B]/20 active:scale-95"
+                              className="w-full py-2 px-3 bg-primary hover:bg-[#2b7773] text-white rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-xs shadow-primary/20 active:scale-95"
                             >
                               <Icon path={mdiWhatsapp} size={0.65} />
                               <span>Beli</span>
@@ -525,7 +525,7 @@ export default async function HomePage() {
 
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-400 text-sm font-medium bg-white/50 rounded-3xl border border-dashed border-[#A5E9DD]/50 max-w-xl mx-auto">
+            <div className="text-center py-12 text-slate-400 text-sm font-medium bg-white/50 rounded-3xl border border-dashed border-teal-light/50 max-w-xl mx-auto">
               Belum ada produk UMKM Naik Kelas yang ditampilkan.
             </div>
           )}

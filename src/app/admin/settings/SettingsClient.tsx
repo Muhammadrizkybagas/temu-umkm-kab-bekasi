@@ -71,8 +71,8 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
         {/* informasi umum */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <Icon path={mdiStorefrontOutline} size={0.9} className="text-blue-600" />
-            <h3 className="text-base font-bold text-gray-900">Informasi & SEO Website</h3>
+            <Icon path={mdiStorefrontOutline} size={0.9} className="text-teal-600" />
+            <h3 className="text-base font-bold text-gray-700">Informasi & SEO Website</h3>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -83,7 +83,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 name="siteName"
                 defaultValue={initialSettings.siteName}
                 required
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
 
@@ -94,7 +94,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 rows={3}
                 defaultValue={initialSettings.siteDescription}
                 required
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none"
               ></textarea>
             </div>
           </div>
@@ -103,8 +103,8 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
         {/* Informasi Kontak & Alamat */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <Icon path={mdiPhoneOutline} size={0.9} className="text-blue-600" />
-            <h3 className="text-base font-bold text-gray-900">Kontak & Alamat Kantor</h3>
+            <Icon path={mdiPhoneOutline} size={0.9} className="text-teal-600" />
+            <h3 className="text-base font-bold text-gray-700">Kontak & Alamat Kantor</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -115,7 +115,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 name="contactPhone"
                 defaultValue={initialSettings.contactPhone}
                 required
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
 
@@ -126,7 +126,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 name="contactEmail"
                 defaultValue={initialSettings.contactEmail}
                 required
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
 
@@ -137,7 +137,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 rows={2}
                 defaultValue={initialSettings.officeAddress}
                 required
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none"
               ></textarea>
             </div>
           </div>
@@ -146,21 +146,21 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
         {/* Media Sosial */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <Icon path={mdiInstagram} size={0.9} className="text-pink-600" />
-            <h3 className="text-base font-bold text-gray-900">Tautan Media Sosial</h3>
+            <Icon path={mdiInstagram} size={0.9} className="text-teal-600" />
+            <h3 className="text-base font-bold text-gray-700">Tautan Media Sosial</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
-                <Icon path={mdiInstagram} size={0.6} className="text-pink-600" /> Instagram URL
+                <Icon path={mdiInstagram} size={0.6} className="text-teal-600" /> Instagram URL
               </label>
               <input
                 type="url"
                 name="instagramUrl"
                 placeholder="https://instagram.com/..."
                 defaultValue={initialSettings.instagramUrl}
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
 
@@ -173,7 +173,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 name="facebookUrl"
                 placeholder="https://facebook.com/..."
                 defaultValue={initialSettings.facebookUrl}
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
 
@@ -186,7 +186,7 @@ export default function SettingsClient({ initialSettings }: { initialSettings: S
                 name="youtubeUrl"
                 placeholder="https://youtube.com/..."
                 defaultValue={initialSettings.youtubeUrl}
-                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600"
               />
             </div>
           </div>

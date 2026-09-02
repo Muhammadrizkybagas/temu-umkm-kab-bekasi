@@ -260,7 +260,7 @@ export default function AdminUMKMPage() {
     });
   };
 
-  return (
+return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -269,9 +269,10 @@ export default function AdminUMKMPage() {
         </div>
         <Link
           href="/admin/umkm/tambah"
-          className="bg-primary hover:bg-[#2489b5] text-white px-5 py-2 rounded-full font-medium text-sm transition-all text-center sm:w-auto w-full flex items-center justify-center"
+          className="bg-primary hover:bg-teal-medium text-white px-5 py-2.5 rounded-full font-normal text-sm transition-all text-center sm:w-auto w-full flex items-center justify-center gap-2 shadow-sm"
         >
-          + Tambah UMKM
+          <Icon path={mdiDomain} size={0.8} />
+          Tambah UMKM
         </Link>
       </div>
 
@@ -321,7 +322,7 @@ export default function AdminUMKMPage() {
           placeholder="Cari berdasarkan nama umkm, pemilik, kecamatan"
           value={search}
           onChange={handleSearchChange}
-          className="w-full pl-10 pr-10 py-3 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
+          className="w-full pl-10 pr-10 py-3 bg-white border border-slate-200/85 rounded-full text-xs sm:text-sm font-normal text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
         />
 
         {search && (
@@ -336,27 +337,27 @@ export default function AdminUMKMPage() {
         )}
       </div>
 
-      <div className="bg-secondary rounded-xl shadow-soft border border-gray-100 overflow-hidden p-4">
+      <div className="bg-white rounded-xl shadow-soft border border-slate-100 overflow-hidden p-4">
         {loading ? (
-          <div className="p-8 text-center text-gray-400">Memuat data...</div>
+          <div className="p-8 text-center text-gray-400 font-normal">Memuat data...</div>
         ) : filteredData.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-gray-400 font-normal">
             {search ? "Data UMKM tidak ditemukan." : "Belum ada data UMKM."}
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-lg border border-slate-100">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-surface border-b border-gray-100 text-gray-600">
-                    <th className="p-4 font-semibold w-12 text-center">No.</th>
-                    <th className="p-4 font-semibold">Nama UMKM</th>
-                    <th className="p-4 font-semibold">Pemilik</th>
-                    <th className="p-4 font-semibold">Kecamatan</th>
-                    <th className="p-4 font-semibold">No. HP</th>
-                    <th className="p-4 font-semibold text-center">Status</th>
-                    <th className="p-4 font-semibold text-center">Naik Kelas</th>
-                    <th className="p-4 font-semibold text-right">Aksi</th>
+                  <tr className="bg-primary text-white font-normal">
+                    <th className="p-3.5 font-normal w-12 text-center">No.</th>
+                    <th className="p-3.5 font-normal">Nama UMKM</th>
+                    <th className="p-3.5 font-normal">Pemilik</th>
+                    <th className="p-3.5 font-normal">Kecamatan</th>
+                    <th className="p-3.5 font-normal">No. HP</th>
+                    <th className="p-3.5 font-normal text-center">Status</th>
+                    <th className="p-3.5 font-normal text-center">Naik Kelas</th>
+                    <th className="p-3.5 font-normal text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -364,29 +365,36 @@ export default function AdminUMKMPage() {
                     const rowNumber = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
                     const isNaik = checkIsNaikKelas(item);
                     const statusText = getStatusLabel(item.status);
+                    // zebra stripping
+                    const isEven = index % 2 === 1;
 
                     return (
-                      <tr key={item.id} className="border-b border-gray-50 hover:bg-surface/50">
-                        <td className="p-4 text-center font-medium text-gray-500">{rowNumber}</td>
-                        <td className="p-4 font-medium text-textMain">
+                      <tr 
+                        key={item.id} 
+                        className={`border-b border-slate-100 transition-colors ${
+                          isEven ? "bg-teal-light/15 hover:bg-teal-light/30" : "bg-white hover:bg-slate-50"
+                        }`}
+                      >
+                        <td className="p-3.5 text-center font-normal text-slate-500">{rowNumber}</td>
+                        <td className="p-3.5 font-normal text-slate-800">
                           <div className="flex items-center gap-3">
                             <img
                               src={item.logo || "/default-logo.png"}
                               alt={item.name}
-                              className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-xs shrink-0 bg-white"
+                              className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-xs shrink-0 bg-white"
                             />
-                            <span className="font-medium text-textMain">{item.name}</span>
+                            <span className="font-normal text-slate-800">{item.name}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-gray-600">{item.ownerName}</td>
-                        <td className="p-4 text-gray-600">{item.district}</td>
-                        <td className="p-4 text-gray-600">{item.phone}</td>
+                        <td className="p-3.5 text-slate-600 font-normal">{item.ownerName}</td>
+                        <td className="p-3.5 text-slate-600 font-normal">{item.district}</td>
+                        <td className="p-3.5 text-slate-600 font-normal">{item.phone}</td>
 
                         {/* Status Kemitraan */}
-                        <td className="p-4 text-center">
+                        <td className="p-3.5 text-center">
                           <button
                             onClick={() => handleToggleStatusKemitraan(item.id, item.status, item.name)}
-                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                            className={`px-3 py-1 rounded-full text-xs font-normal transition-all cursor-pointer ${
                               statusText === "Bermitra"
                                 ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                                 : "bg-purple-100 text-purple-700 hover:bg-purple-200"
@@ -397,10 +405,10 @@ export default function AdminUMKMPage() {
                         </td>
 
                         {/* status naik kelas */}
-                        <td className="p-4 text-center">
+                        <td className="p-3.5 text-center">
                           <button
                             onClick={() => handleToggleNaikKelas(item.id, isNaik, item.name)}
-                            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                            className={`px-3 py-1 rounded-full text-xs font-normal transition-all cursor-pointer ${
                               isNaik
                                 ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
                                 : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -410,19 +418,21 @@ export default function AdminUMKMPage() {
                           </button>
                         </td>
 
-                        <td className="p-4 text-right space-x-2">
-                          <Link
-                            href={`/admin/umkm/edit/${item.id}`}
-                            className="text-teal-600 mb-1 hover:text-teal-800 font-medium text-xs px-2.5 py-1.5 bg-blue-50 rounded-full hover:bg-blue-100 transition-all inline-block"
-                          >
-                            Edit
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(item.id, item.name)}
-                            className="text-red-600 hover:text-red-800 font-medium text-xs px-2.5 py-1.5 bg-red-50 rounded-full hover:bg-red-100 transition-all"
-                          >
-                            Hapus
-                          </button>
+                        <td className="p-3.5 text-center">
+                          <div className="flex gap-2 justify-center items-center">
+                            <Link
+                              href={`/admin/umkm/edit/${item.id}`}
+                              className="px-3 py-1.5 bg-primary hover:bg-teal-700 text-white text-xs font-normal rounded-full transition-colors flex items-center gap-1"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(item.id, item.name)}
+                              className="px-3 py-1.5 bg-red-500 hover:bg-red-700 text-white text-xs font-normal rounded-full transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              Hapus
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

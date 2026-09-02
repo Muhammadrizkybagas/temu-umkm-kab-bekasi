@@ -85,15 +85,14 @@ export default function ActivityLogsClient({ initialLogs }: { initialLogs: LogIt
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+return (
+    <div className="max-w-6xl pb-12">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Icon path={mdiHistory} size={1} className="text-blue-600" /> Log Aktivitas Admin
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <Icon path={mdiHistory} size={1} className="text-primary" /> Log Aktivitas Admin
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm font-medium text-slate-500 mt-0.5">
             Audit trail pencatatan seluruh tindakan pembuatan, perbaikan, dan penghapusan data.
           </p>
         </div>
@@ -101,7 +100,7 @@ export default function ActivityLogsClient({ initialLogs }: { initialLogs: LogIt
         {logs.length > 0 && (
           <button
             onClick={handleClearLogs}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 rounded-xl transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-normal bg-red-50 text-red-600 hover:bg-red-100 rounded-full transition-colors cursor-pointer"
           >
             <Icon path={mdiDeleteSweepOutline} size={0.7} /> Bersihkan Log
           </button>
@@ -109,78 +108,91 @@ export default function ActivityLogsClient({ initialLogs }: { initialLogs: LogIt
       </div>
 
       {/* Tabel Log */}
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 border-b border-gray-100 text-xs font-semibold uppercase text-gray-500">
-              <tr>
-                <th className="px-6 py-3.5">Aktor / Admin</th>
-                <th className="px-6 py-3.5">Tindakan</th>
-                <th className="px-6 py-3.5">Deskripsi Aktivitas</th>
-                <th className="px-6 py-3.5">Waktu</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {logs.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
-                    Belum ada riwayat aktivitas tercatat.
-                  </td>
-                </tr>
-              ) : (
-                currentLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      <div>{log.userName}</div>
-                      <div className="text-xs text-gray-400 font-normal">{log.userEmail}</div>
-                    </td>
-                    <td className="px-6 py-4">{getActionBadge(log.action)}</td>
-                    <td className="px-6 py-4 text-gray-800 font-medium">{log.description}</td>
-                    <td className="px-6 py-4 text-xs text-gray-500 whitespace-nowrap">
-                      {log.createdAt
-                        ? new Date(log.createdAt).toLocaleString("id-ID", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })
-                        : "-"}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+        <div>
+          {logs.length === 0 ? (
+            <div className="py-20 text-center flex flex-col items-center justify-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 border border-slate-100 mb-1">
+                <Icon path={mdiHistory} size={1.2} />
+              </div>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Belum ada riwayat aktivitas tercatat.</p>
+            </div>
+          ) : (
+            <div className="p-4">
+              <div className="overflow-x-auto rounded-lg border border-slate-100">
+                <table className="w-full text-left text-xs border-collapse min-w-162.5">
+                  <thead>
+                    <tr className="bg-primary text-white font-semibold text-[14px]">
+                      <th className="p-3.5 font-normal">Role</th>
+                      <th className="p-3.5 font-normal">Tindakan</th>
+                      <th className="p-3.5 font-normal">Deskripsi Aktivitas</th>
+                      <th className="p-3.5 font-normal">Waktu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentLogs.map((log, index) => {
+                      const isEven = index % 2 === 1;
+
+                      return (
+                        <tr 
+                          key={log.id} 
+                          className={`border-b border-slate-100 transition-colors ${
+                            isEven ? "bg-teal-light/15 hover:bg-teal-light/30" : "bg-white hover:bg-slate-50"
+                          }`}
+                        >
+                          <td className="p-3.5 font-normal text-slate-800">
+                            <div>{log.userName}</div>
+                            <div className="text-xs text-slate-400 font-normal mt-0.5">{log.userEmail}</div>
+                          </td>
+                          <td className="p-3.5 font-normal whitespace-nowrap">{getActionBadge(log.action)}</td>
+                          <td className="p-3.5 text-slate-800 font-normal">{log.description}</td>
+                          <td className="p-3.5 text-xs text-slate-600 whitespace-nowrap font-normal">
+                            {log.createdAt
+                              ? new Date(log.createdAt).toLocaleString("id-ID", {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })
+                              : "-"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
-
         {logs.length > 0 && (
-          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <div className="p-4 border-t border-slate-100 bg-slate-50/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div>
-              Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span>–
-              <span className="font-semibold text-gray-900">
+              Menampilkan <span className="font-bold text-slate-700">{startIndex + 1}</span>–
+              <span className="font-bold text-slate-700">
                 {Math.min(endIndex, logs.length)}
               </span>{" "}
-              dari <span className="font-semibold text-gray-900">{logs.length}</span> log aktivitas
+              dari <span className="font-bold text-slate-700">{logs.length}</span> log aktivitas
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-normal cursor-pointer"
               >
-                <Icon path={mdiChevronLeft} size={0.6} /> Sebelumnya
+                <Icon path={mdiChevronLeft} size={0.6} /> Prev
               </button>
 
-              <div className="px-3 py-1 text-gray-700 font-semibold bg-white border border-gray-200 rounded-lg">
+              <div className="px-3 py-1 text-slate-700 font-bold bg-white border border-slate-200 rounded-lg">
                 {currentPage} / {totalPages || 1}
               </div>
 
               <button
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage >= totalPages}
-                className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-normal cursor-pointer"
               >
-                Selanjutnya <Icon path={mdiChevronRight} size={0.6} />
+                Next <Icon path={mdiChevronRight} size={0.6} />
               </button>
             </div>
           </div>

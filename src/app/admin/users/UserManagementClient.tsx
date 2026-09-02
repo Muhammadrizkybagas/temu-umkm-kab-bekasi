@@ -289,12 +289,12 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-xl border border-slate-100">
             <div>
-              <h3 className="text-lg font-black text-slate-900 tracking-tight">Tambah Pengguna Baru</h3>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Tambahkan akun administrator atau kontributor panel.</p>
+              <h3 className="text-lg font-semibold text-slate-700 tracking-tight">Tambah Pengguna Baru</h3>
+              <p className="text-xs font-medium text-slate-600 mt-0.5">Tambahkan akun administrator atau kontributor panel.</p>
             </div>
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
                 <input 
                   name="name" 
                   required 
@@ -303,7 +303,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Email</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Email</label>
                 <input 
                   name="email" 
                   type="email" 
@@ -313,7 +313,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Password (Min. 6 Karakter)</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Password (Min. 6 Karakter)</label>
                 <div className="relative">
                   <input 
                     name="password" 
@@ -333,7 +333,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Role / Hak Akses</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Role / Hak Akses</label>
                 <select 
                   name="role" 
                   defaultValue="Admin" 
@@ -348,13 +348,13 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 <button 
                   type="button" 
                   onClick={() => setIsAddOpen(false)} 
-                  className="px-5 py-2.5 text-xs font-extrabold text-slate-600 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer"
+                  className="px-5 py-2.5 text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full transition-all cursor-pointer"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
-                  className="px-5 py-2.5 text-xs font-extrabold bg-primary hover:bg-[#2d7e79] text-white rounded-2xl shadow-md shadow-primary/20 transition-all cursor-pointer"
+                  className="px-5 py-2.5 text-xs font-medium bg-primary hover:bg-[#2d7e79] text-white rounded-full shadow-md shadow-primary/20 transition-all cursor-pointer"
                 >
                   Simpan Admin
                 </button>
@@ -369,12 +369,12 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-xl border border-slate-100">
             <div>
-              <h3 className="text-lg font-black text-slate-900 tracking-tight">Edit Data Admin</h3>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Perbarui informasi profil pengguna panel.</p>
+              <h3 className="text-lg font-semibold text-slate-700 tracking-tight">Edit Data Admin</h3>
+              <p className="text-[12px] font-normal text-slate-600 mt-0.5">Perbarui informasi profil pengguna panel.</p>
             </div>
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
                 <input 
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
@@ -383,7 +383,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Email</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Email</label>
                 <input 
                   type="email"
                   value={editEmail}
@@ -393,7 +393,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">Role / Hak Akses</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Role / Hak Akses</label>
                 <select 
                   value={editRole}
                   onChange={(e) => setEditRole(e.target.value)}
@@ -408,13 +408,13 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 <button 
                   type="button" 
                   onClick={() => setModalType(null)} 
-                  className="px-5 py-2.5 text-xs font-extrabold text-slate-600 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer"
+                  className="px-5 py-2.5 text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full transition-all cursor-pointer"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
-                  className="px-5 py-2.5 text-xs font-extrabold bg-primary hover:bg-[#2d7e79] text-white rounded-2xl shadow-md shadow-primary/20 transition-all cursor-pointer"
+                  className="px-5 py-2.5 text-xs font-medium bg-primary hover:bg-[#2d7e79] text-white rounded-full shadow-md shadow-primary/20 transition-all cursor-pointer"
                 >
                   Simpan Perubahan
                 </button>
@@ -429,8 +429,8 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-5 shadow-xl border border-slate-100">
             <div>
-              <h3 className="text-lg font-black text-slate-900 tracking-tight">Ganti Password</h3>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">Masukkan sandi baru untuk akun <strong>{selectedUser.name}</strong></p>
+              <h3 className="text-lg font-semibold text-slate-700 tracking-tight">Ganti Password</h3>
+              <p className="text-xs font-medium text-slate-600 mt-0.5">Masukkan sandi baru untuk akun <strong>{selectedUser.name}</strong></p>
             </div>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div className="relative">
@@ -455,13 +455,13 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
                 <button 
                   type="button" 
                   onClick={() => setModalType(null)} 
-                  className="px-5 py-2.5 text-xs font-extrabold text-slate-600 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer"
+                  className="px-5 py-2.5 text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full transition-all cursor-pointer"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
-                  className="px-5 py-2.5 text-xs font-extrabold bg-amber-600 hover:bg-amber-700 text-white rounded-2xl shadow-md shadow-amber-600/20 transition-all cursor-pointer"
+                  className="px-5 py-2.5 text-[12px] font-medium bg-amber-600 hover:bg-amber-700 text-white rounded-full shadow-md shadow-amber-600/20 transition-all cursor-pointer"
                 >
                   Simpan Password
                 </button>
@@ -476,19 +476,19 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: U
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-5 shadow-xl border border-slate-100">
             <div>
-              <h3 className="text-lg font-black text-slate-900 tracking-tight">Hapus Akses Admin</h3>
-              <p className="text-sm font-medium text-slate-500 mt-1">Apakah Anda yakin ingin menghapus akun <strong>{selectedUser.name}</strong>? Tindakan ini tidak dapat dibatalkan.</p>
+              <h3 className="text-lg font-semibold text-slate-700 tracking-tight">Hapus Akses <strong>{selectedUser.name}</strong></h3>
+              <p className="text-sm font-normal text-slate-600 mt-1">Apakah Anda yakin ingin menghapus akun <strong>{selectedUser.name}</strong>?</p>
             </div>
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
               <button 
                 onClick={() => setModalType(null)} 
-                className="px-5 py-2.5 text-xs font-extrabold text-slate-600 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer"
+                className="px-5 py-2.5 text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full transition-all cursor-pointer"
               >
                 Batal
               </button>
               <button 
                 onClick={handleDeleteSubmit} 
-                className="px-5 py-2.5 text-xs font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-md shadow-red-600/20 transition-all cursor-pointer"
+                className="px-5 py-2.5 text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md shadow-red-600/20 transition-all cursor-pointer"
               >
                 Ya, Hapus
               </button>

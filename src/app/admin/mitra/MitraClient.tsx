@@ -117,7 +117,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
     }
   };
 
-  return (
+return (
     <div className="space-y-6">
       {/* header */}
       <div>
@@ -139,7 +139,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
             }
             className={`w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] lg:w-[calc(16.666%-10px)] p-3.5 rounded-xl border bg-white transition-all cursor-pointer shadow-2xs ${
               selectedPartnerFilter === partner.id
-                ? "border-primary ring-2 ring-blue-100 bg-blue-50/20"
+                ? "border-primary ring-2 ring-primary/10 bg-primary/5"
                 : "border-gray-100 hover:border-gray-200"
             }`}
           >
@@ -147,7 +147,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
               <div className="relative w-7 h-7">
                 <Image src={partner.logoUrl} alt={partner.name} fill className="object-contain" />
               </div>
-              <span className="text-xs font-extrabold text-primary bg-blue-50 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-extrabold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                 {partner.count}
               </span>
             </div>
@@ -169,7 +169,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
             placeholder="Cari UMKM, Pemilik, atau Kecamatan..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 bg-slate-50/50 border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-2xs"
+            className="w-full pl-10 pr-10 py-2.5 bg-slate-50/50 border border-slate-200/80 rounded-full text-xs sm:text-sm font-normal text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-2xs"
           />
 
           {search && (
@@ -184,7 +184,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
           )}
         </div>
 
-        {/* dripdown mitra */}
+        {/* dropdown mitra */}
         <div className="flex items-center gap-2 w-full md:w-auto">
           <div className="relative w-full md:w-64">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center">
@@ -194,7 +194,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
             <select
               value={selectedPartnerFilter}
               onChange={(e) => setSelectedPartnerFilter(e.target.value)}
-              className="w-full pl-9 pr-9 py-2.5 bg-slate-50/50 border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-700 outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all cursor-pointer appearance-none shadow-2xs"
+              className="w-full pl-9 pr-9 py-2.5 bg-slate-50/50 border border-slate-200/80 rounded-full text-xs sm:text-sm font-normal text-slate-700 outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all cursor-pointer appearance-none shadow-2xs"
             >
               <option value="ALL">Semua Mitra Ritel</option>
               <option value="NONE">Belum Memiliki Ritel</option>
@@ -213,36 +213,43 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
       </div>
 
       {/* tabel */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-2xs p-4">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-gray-600">
-            <thead className="bg-gray-50 border-b border-gray-100 text-gray-400 font-semibold uppercase text-[10px]">
-              <tr>
-                <th className="py-3 px-4">No</th>
-                <th className="py-3 px-4">Nama UMKM</th>
-                <th className="py-3 px-4">Pemilik</th>
-                <th className="py-3 px-4">Kecamatan</th>
-                <th className="py-3 px-4">Mitra Ritel Terdaftar</th>
-                <th className="py-3 px-4 text-center">Aksi</th>
+      <div className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-soft p-4">
+        <div className="overflow-x-auto rounded-lg border border-slate-100">
+          <table className="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr className="bg-primary text-white font-normal">
+                <th className="p-3.5 font-normal w-12 text-center">No.</th>
+                <th className="p-3.5 font-normal">Nama UMKM</th>
+                <th className="p-3.5 font-normal">Pemilik</th>
+                <th className="p-3.5 font-normal">Kecamatan</th>
+                <th className="p-3.5 font-normal">Mitra Ritel Terdaftar</th>
+                <th className="p-3.5 font-normal text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {paginatedUmkms.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-gray-400">
+                  <td colSpan={6} className="text-center py-8 text-gray-400 font-normal">
                     Tidak ada UMKM bermitra yang ditemukan.
                   </td>
                 </tr>
               ) : (
                 paginatedUmkms.map((item, index) => {
                   const rowNumber = (currentPage - 1) * pageSize + index + 1;
+                  const isEven = index % 2 === 1;
+
                   return (
-                    <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3.5 px-4 font-medium text-gray-400">{rowNumber}</td>
-                      <td className="py-3.5 px-4 font-medium text-sm text-gray-900">{item.name}</td>
-                      <td className="py-3.5 px-4">{item.ownerName}</td>
-                      <td className="py-3.5 px-4">{item.district}</td>
-                      <td className="py-3.5 px-4">
+                    <tr
+                      key={item.id}
+                      className={`border-b border-slate-100 transition-colors ${
+                        isEven ? "bg-teal-light/15 hover:bg-teal-light/30" : "bg-white hover:bg-slate-50"
+                      }`}
+                    >
+                      <td className="p-3.5 text-center font-normal text-slate-500">{rowNumber}</td>
+                      <td className="p-3.5 font-normal text-slate-800">{item.name}</td>
+                      <td className="p-3.5 text-slate-600 font-normal">{item.ownerName}</td>
+                      <td className="p-3.5 text-slate-600 font-normal">{item.district}</td>
+                      <td className="p-3.5 text-slate-600 font-normal">
                         {item.partners.length === 0 ? (
                           <span className="text-[11px] text-gray-400 italic">Belum disetting</span>
                         ) : (
@@ -251,7 +258,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
                               <div
                                 key={p.partner.id}
                                 title={p.partner.name}
-                                className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
+                                className="flex items-center gap-1.5 bg-white border border-slate-200 px-2 py-1 rounded-md shadow-2xs"
                               >
                                 <div className="relative w-4 h-4">
                                   <Image
@@ -261,7 +268,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
                                     className="object-contain"
                                   />
                                 </div>
-                                <span className="text-[10px] font-semibold text-gray-700">
+                                <span className="text-[10px] font-normal text-slate-700">
                                   {p.partner.name}
                                 </span>
                               </div>
@@ -269,10 +276,10 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
                           </div>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="p-3.5 text-center">
                         <button
                           onClick={() => openEditModal(item)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-teal-700 text-white text-xs font-normal rounded-full transition-colors cursor-pointer"
                         >
                           <Icon path={mdiPencilOutline} size={0.6} />
                           Kelola Mitra
@@ -286,7 +293,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
           </table>
         </div>
 
-        {/* paginaton */}
+        {/* pagination */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -310,7 +317,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
               </div>
               <button
                 onClick={() => setActiveUmkm(null)}
-                className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200/50"
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 cursor-pointer"
               >
                 <Icon path={mdiClose} size={0.8} />
               </button>
@@ -331,7 +338,7 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
                       onClick={() => togglePartnerSelection(partner.id)}
                       className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all select-none ${
                         isChecked
-                          ? "border-primary bg-blue-50/50 shadow-2xs"
+                          ? "border-primary bg-primary/5 shadow-2xs"
                           : "border-gray-200 hover:border-gray-300 bg-white"
                       }`}
                     >
@@ -354,14 +361,14 @@ export default function MitraClient({ initialPartners, initialUmkms }: MitraClie
             <div className="p-4 border-t border-gray-100 flex items-center justify-end gap-2 bg-gray-50">
               <button
                 onClick={() => setActiveUmkm(null)}
-                className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-200/60 rounded-lg transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-medium bg-red-500 hover:bg-red-700 text-white rounded-full transition-colors cursor-pointer"
               >
                 Batal
               </button>
               <button
                 onClick={handleSavePartners}
                 disabled={loading}
-                className="px-4 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-full transition-colors cursor-pointer disabled:opacity-50"
               >
                 {loading ? "Menyimpan..." : "Simpan Kemitraan"}
               </button>

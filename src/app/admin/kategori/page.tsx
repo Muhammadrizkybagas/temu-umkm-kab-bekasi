@@ -176,10 +176,8 @@ export default function AdminKategoriPage() {
     });
   };
 
-  return (
+return (
     <div className="max-w-6xl pb-12">
-  
-  
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Manajemen Kategori</h1>
@@ -191,12 +189,11 @@ export default function AdminKategoriPage() {
         </div>
       </div>
 
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/*add kategori */}
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-fit sticky top-6 group/card hover:shadow-md transition-all duration-300">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-full bg-teal-light/20 text-primary flex items-center justify-center border border-teal-light/40">
+            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
               <Icon path={mdiPlus} size={0.9} />
             </div>
             <h2 className="font-bold text-slate-900 text-sm">Tambah Kategori Baru</h2>
@@ -210,13 +207,13 @@ export default function AdminKategoriPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Contoh: Kuliner, Fashion, Kriya"
-                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-full focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                className="w-full px-4 py-3 text-sm bg-slate-50/50 border border-slate-200 rounded-full focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all font-normal text-slate-800 placeholder:text-slate-400"
               />
             </div>
             <button
               type="submit"
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[#2d7e79] text-white py-3 rounded-full text-[14px] font-medium shadow-md shadow-primary/20 transition-all disabled:opacity-70 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-teal-medium text-white py-3 rounded-full text-[14px] font-normal shadow-md shadow-primary/20 transition-all disabled:opacity-70 cursor-pointer"
             >
               <Icon path={mdiPlus} size={0.8} />
               {submitting ? "Menyimpan..." : "Simpan Kategori"}
@@ -240,13 +237,13 @@ export default function AdminKategoriPage() {
                     setCurrentPage(1); 
                   }}
                   placeholder="Cari kategori..."
-                  className="w-full pl-10 pr-4 py-2 bg-white text-xs border border-slate-200 rounded-full focus:ring-2 focus:ring-primary outline-none font-medium text-slate-700 placeholder:text-slate-400 transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white text-xs border border-slate-200 rounded-full focus:ring-2 focus:ring-primary outline-none font-normal text-slate-700 placeholder:text-slate-400 transition-all"
                 />
               </div>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="text-xs font-bold text-primary hover:underline whitespace-nowrap"
+                  className="text-xs font-bold text-primary hover:underline whitespace-nowrap cursor-pointer"
                 >
                   Reset Filter
                 </button>
@@ -265,52 +262,62 @@ export default function AdminKategoriPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs whitespace-nowrap md:whitespace-normal">
-                  <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-100 text-slate-600 uppercase tracking-wider font-extrabold text-[12px]">
-                      <th className="p-4 w-12 text-center">No.</th>
-                      <th className="p-4">Nama Kategori</th>
-                      <th className="p-4">Slug URL</th>
-                      <th className="p-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {paginatedCategories.map((cat, index) => {
-                      const rowNumber = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
+              <div className="p-4">
+                <div className="overflow-x-auto rounded-lg border border-slate-100">
+                  <table className="w-full text-left text-xs whitespace-nowrap md:whitespace-normal border-collapse">
+                    <thead>
+                      <tr className="bg-primary text-white font-medium text-[14px] ">
+                        <th className="p-3.5 w-12 text-center font-normal">No.</th>
+                        <th className="p-3.5 font-normal">Nama Kategori</th>
+                        <th className="p-3.5 font-normal">Slug URL</th>
+                        <th className="p-3.5 text-center font-normal">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedCategories.map((cat, index) => {
+                        const rowNumber = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
+                        const isEven = index % 2 === 1;
 
-                      return (
-                        <tr key={cat.id} className="hover:bg-teal-light/10 transition-colors group">
-                          <td className="p-4 text-center font-medium  text-slate-400 group-hover:text-primary">{rowNumber}</td>
-                          <td className="p-4 font-medium text-slate-900 group-hover:text-primary transition-colors">{cat.name}</td>
-                          <td className="p-4 text-slate-500 font-mono text-[12px] bg-slate-50/60 rounded-full w-fit">
-                            <span className="px-3 py-1 rounded-full bg-white border border-slate-100 shadow-2xs">
-                              {cat.slug}
-                            </span>
-                          </td>
-                          <td className="p-4 text-right space-x-2">
-                            <button
-                              onClick={() => handleEdit(cat.id, cat.name)}
-                              className="inline-flex items-center gap-1 text-primary hover:text-white font-medium text-xs px-3 py-1.5 bg-teal-light/20 rounded-xl hover:bg-primary transition-all border border-teal-light/40 cursor-pointer"
-                              title="Edit Kategori"
-                            >
-                              <Icon path={mdiPencil} size={0.7} />
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(cat.id, cat.name)}
-                              className="inline-flex items-center gap-1 text-red-600 hover:text-white font-medium text-xs px-3 py-1.5 bg-red-50 rounded-xl hover:bg-red-600 transition-all border border-red-100 cursor-pointer"
-                              title="Hapus Kategori"
-                            >
-                              <Icon path={mdiTrashCan} size={0.7} />
-                              Hapus
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                        return (
+                          <tr 
+                            key={cat.id} 
+                            className={`border-b border-slate-100 transition-colors ${
+                              isEven ? "bg-teal-light/15 hover:bg-teal-light/30" : "bg-white hover:bg-slate-50"
+                            }`}
+                          >
+                            <td className="p-3.5 text-center font-normal text-[12px] text-slate-500">{rowNumber}</td>
+                            <td className="p-3.5 font-semibold text-[12px] text-slate-800">{cat.name}</td>
+                            <td className="p-3.5 text-slate-600 font-normal">
+                              <span className="px-3 py-1 rounded-full bg-white border border-slate-200 shadow-2xs font-mono text-[12px] text-slate-600 inline-block">
+                                {cat.slug}
+                              </span>
+                            </td>
+                            <td className="p-3.5 text-center">
+                              <div className="flex gap-2 justify-center items-center">
+                                <button
+                                  onClick={() => handleEdit(cat.id, cat.name)}
+                                  className="px-3 py-1.5 bg-primary hover:bg-teal-700 text-white text-xs font-normal rounded-full transition-colors flex items-center gap-1 cursor-pointer"
+                                  title="Edit Kategori"
+                                >
+                                  <Icon path={mdiPencil} size={0.7} />
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(cat.id, cat.name)}
+                                  className="px-3 py-1.5 bg-red-500 hover:bg-red-700 text-white text-xs font-normal rounded-full transition-colors flex items-center gap-1 cursor-pointer"
+                                  title="Hapus Kategori"
+                                >
+                                  <Icon path={mdiTrashCan} size={0.7} />
+                                  Hapus
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

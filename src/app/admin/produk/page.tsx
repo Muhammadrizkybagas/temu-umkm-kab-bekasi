@@ -35,7 +35,6 @@ export default function AdminProdukPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  
   const fetchProductsData = async () => {
     try {
       setLoading(true);
@@ -55,7 +54,6 @@ export default function AdminProdukPage() {
     fetchProductsData();
   }, []);
 
-  
   const filteredData = useMemo(() => {
     return data.filter(
       (item) =>
@@ -64,7 +62,6 @@ export default function AdminProdukPage() {
     );
   }, [data, searchTerm]);
 
-  
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
   const paginatedData = useMemo(() => {
@@ -72,7 +69,6 @@ export default function AdminProdukPage() {
     return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredData, currentPage]);
 
-  
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
@@ -157,7 +153,7 @@ export default function AdminProdukPage() {
       <body>
         <table border="1">
           <thead>
-            <tr style="background-color: #2489b5; color: white; font-weight: bold;">
+            <tr style="background-color: #34908B; color: white; font-weight: bold;">
               <th>Nama Produk</th>
               <th>UMKM</th>
               <th>Kategori</th>
@@ -198,23 +194,22 @@ export default function AdminProdukPage() {
 
   return (
     <div>
-      
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-      <div>
-        <h1 className="text-2xl font-bold text-textMain">Manajemen Produk</h1>
-        <p className="text-sm text-gray-500">Kelola produk UMKM Kabupaten Bekasi</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-textMain">Manajemen Produk</h1>
+          <p className="text-sm text-gray-500">Kelola produk UMKM Kabupaten Bekasi</p>
+        </div>
+        <Link
+          href="/admin/produk/tambah"
+          className="bg-primary hover:bg-teal-medium text-white px-5 py-2.5 rounded-full font-normal text-sm transition-all flex items-center justify-center gap-2 shadow-sm text-center sm:w-auto w-full"
+        >
+          <Icon path={mdiPlus} size={0.8} />
+          Tambah Produk
+        </Link>
       </div>
-      <Link
-        href="/admin/produk/tambah"
-        className="bg-primary hover:bg-[#2489b5] text-white px-5 py-2.5 rounded-full font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm text-center sm:w-auto w-full"
-      >
-        <Icon path={mdiPlus} size={0.8} />
-        Tambah Produk
-      </Link>
-    </div>
 
       {/* card tabel */}
-      <div className="bg-secondary rounded-xl shadow-soft  overflow-hidden p-4">
+      <div className="bg-white rounded-xl shadow-soft overflow-hidden p-4 border border-slate-100">
         <div className="mb-4 flex flex-col md:flex-row gap-3 justify-between items-center">
           <div className="relative w-full sm:w-80 md:w-96 group">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200 pointer-events-none flex items-center">
@@ -226,7 +221,7 @@ export default function AdminProdukPage() {
               placeholder="Cari produk atau UMKM..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-reguler text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
+              className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200/80 rounded-full text-xs sm:text-sm font-normal text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all shadow-xs"
             />
 
             {searchTerm && (
@@ -245,14 +240,14 @@ export default function AdminProdukPage() {
           <div className="flex gap-2 w-full md:w-auto">
             <button
               onClick={exportToCSV}
-              className="flex-1 md:flex-none px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 md:flex-none px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-normal rounded-lg transition-all flex items-center justify-center gap-1.5"
             >
               <Icon path={mdiFileDocumentOutline} size={0.7} />
               Export CSV
             </button>
             <button
               onClick={exportToExcel}
-              className="flex-1 md:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              className="flex-1 md:flex-none px-3.5 py-2 bg-primary hover:bg-teal-medium text-white text-xs font-normal rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm"
             >
               <Icon path={mdiFileExcel} size={0.7} />
               Export Excel
@@ -260,76 +255,82 @@ export default function AdminProdukPage() {
           </div>
         </div>
 
-
         {loading ? (
-          <div className="p-8 text-center text-gray-400">Memuat data produk...</div>
+          <div className="p-8 text-center text-gray-400 font-normal">Memuat data produk...</div>
         ) : error ? (
-          <div className="p-8 text-center text-red-500">{error}</div>
+          <div className="p-8 text-center text-red-500 font-normal">{error}</div>
         ) : data.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">Belum ada data produk.</div>
+          <div className="p-8 text-center text-gray-400 font-normal">Belum ada data produk.</div>
         ) : filteredData.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            Produk dengan kata kunci <span className="font-semibold">"{searchTerm}"</span> tidak ditemukan.
+          <div className="p-8 text-center text-gray-500 font-normal">
+            Produk dengan kata kunci <span className="font-medium">"{searchTerm}"</span> tidak ditemukan.
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-lg border border-slate-100">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="bg-surface border-b border-gray-100 text-gray-600">
-                    <th className="p-4 font-semibold w-12 text-center">No.</th>
-                    <th className="p-4 font-semibold">Produk</th>
-                    <th className="p-4 font-semibold">UMKM</th>
-                    <th className="p-4 font-semibold">Kategori</th>
-                    <th className="p-4 font-semibold">Harga</th>
-                    <th className="p-4 font-semibold text-center">Aksi</th>
+                  <tr className="bg-primary text-white font-normal">
+                    <th className="p-3.5 font-normal w-12 text-center">No.</th>
+                    <th className="p-3.5 font-normal">Produk</th>
+                    <th className="p-3.5 font-normal">UMKM</th>
+                    <th className="p-3.5 font-normal">Kategori</th>
+                    <th className="p-3.5 font-normal">Harga</th>
+                    <th className="p-3.5 font-normal text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.map((item, index) => {
                     const rowNumber = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
+                    // zebra striping
+                    const isEven = index % 2 === 1;
 
                     return (
-                      <tr key={item.id} className="border-b border-gray-50 hover:bg-surface/50">
-                        <td className="p-4 text-center font-medium text-gray-500">{rowNumber}</td>
+                      <tr 
+                        key={item.id} 
+                        className={`border-b border-slate-100 transition-colors ${
+                          isEven ? "bg-teal-light/15 hover:bg-teal-light/30" : "bg-white hover:bg-slate-50"
+                        }`}
+                      >
+                        <td className="p-3.5 text-center font-normal text-slate-500">{rowNumber}</td>
 
                         {/* thumbnail */}
-                        <td className="p-4 font-medium text-textMain">
+                        <td className="p-3.5 font-normal text-slate-800">
                           <div className="flex items-center gap-3">
                             {item.imageUrl ? (
                               <img
                                 src={item.imageUrl}
                                 alt={item.name}
-                                className="w-10 h-10 rounded-lg object-cover bg-gray-100 border border-gray-100 shrink-0"
+                                className="w-10 h-10 rounded-lg object-cover bg-gray-100 border border-slate-200 shrink-0"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 flex items-center justify-center text-gray-400 shrink-0">
+                              <div className="w-10 h-10 rounded-lg bg-gray-100 border border-slate-200 flex items-center justify-center text-gray-400 shrink-0">
                                 <Icon path={mdiImageOffOutline} size={0.7} />
                               </div>
                             )}
-                            <span>{item.name}</span>
+                            <span className="font-normal">{item.name}</span>
                           </div>
                         </td>
 
-                        <td className="p-4 text-gray-600">{item.umkmName || "-"}</td>
-                        <td className="p-4 text-gray-600">{item.categoryName || "-"}</td>
-                        <td className="p-4 font-semibold text-primary">
+                        <td className="p-3.5 text-slate-600 font-normal">{item.umkmName || "-"}</td>
+                        <td className="p-3.5 text-slate-600 font-normal">{item.categoryName || "-"}</td>
+                        <td className="p-3.5 font-medium text-primary">
                           Rp {item.price.toLocaleString("id-ID")}
                         </td>
 
                         {/* button */}
-                        <td className="p-4 text-center">
+                        <td className="p-3.5 text-center">
                           <div className="flex gap-2 justify-center items-center">
                             <Link
                               href={`/admin/produk/edit/${item.id}`}
-                              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-teal-600 text-xs font-medium rounded-md transition-colors flex items-center gap-1"
+                              className="px-3 py-1.5 bg-primary hover:bg-teal-700 text-white text-xs font-normal rounded-full transition-colors flex items-center gap-1"
                             >
                               <Icon path={mdiPencilOutline} size={0.65} />
-                              Edit
+                              Ubah
                             </Link>
                             <button
                               onClick={() => handleDelete(item.id, item.name)}
-                              className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-md transition-colors flex items-center gap-1"
+                              className="px-3 py-1.5 bg-red-500 hover:bg-red-700 text-white text-xs font-normal rounded-full transition-colors flex items-center gap-1 cursor-pointer"
                             >
                               <Icon path={mdiDeleteOutline} size={0.65} />
                               Hapus
